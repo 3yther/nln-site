@@ -1,0 +1,1222 @@
+/* ============================================================
+   NEXT LEVEL NETWORK — styles.css
+   Pure black / white / one orange. Static mockup.
+   All font-family references go through the three custom properties.
+   ============================================================ */
+
+/* ---------- Fonts (self-hosted, latin woff2) ---------- */
+
+@font-face {
+  font-family: "Stack Sans Headline";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("fonts/stack-sans-headline-latin-700-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Stack Sans Text";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("fonts/stack-sans-text-latin-400-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Stack Sans Text";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("fonts/stack-sans-text-latin-500-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Stack Sans Text";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("fonts/stack-sans-text-latin-600-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("fonts/ibm-plex-mono-latin-400-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("fonts/ibm-plex-mono-latin-500-normal.woff2") format("woff2");
+}
+
+/* ---------- Tokens ---------- */
+
+:root {
+  --bg: #1b1e4e;
+  --surface: #251c55;
+  --text-primary: #ffffff;
+  --text-secondary: #a8aac9;
+  --text-tertiary: #7b7da0;
+  --divider: #2e2a6b;
+  --accent: #ff5a36;
+  --accent-hover: #e64a2a;
+  --on-accent: #0a0a0a;
+
+  --font-display: "Stack Sans Headline", "Inter", system-ui, sans-serif;
+  --font-sans: "Stack Sans Text", "Inter", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+
+  --nav-h: 72px;
+  --container: 1200px;
+  --pad-x: 48px;
+
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ---------- Reset ---------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 28px;
+  font-weight: 400;
+  color: var(--text-primary);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  position: relative;
+}
+
+/* Subtle grain: fixed SVG noise above the flat navy bg, below all content.
+   Never intercepts input (pointer-events: none). Opacity intentionally tiny. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+/* Keep all real content above the grain overlay. The routes marquee sits
+   between main and footer, so it carries its own z-index (see marquee rules). */
+header,
+main,
+footer {
+  position: relative;
+  z-index: 1;
+}
+
+body.no-scroll {
+  overflow: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+ul {
+  list-style: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* ---------- Accessibility helpers ---------- */
+
+:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 16px;
+  z-index: 1000;
+  padding: 12px 20px;
+  background: var(--bg);
+  color: var(--text-primary);
+  border: 1px solid var(--divider);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.skip-link:focus {
+  top: 16px;
+}
+
+/* ---------- Layout ---------- */
+
+.container {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding-inline: var(--pad-x);
+}
+
+main {
+  padding-top: var(--nav-h);
+}
+
+.section {
+  padding-block: 96px;
+}
+
+.section:first-of-type {
+  padding-top: 64px;
+}
+
+/* ---------- Type roles ---------- */
+
+.h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 72px;
+  line-height: 88px;
+  letter-spacing: -0.02em;
+}
+
+.h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 48px;
+  line-height: 56px;
+  letter-spacing: -0.02em;
+}
+
+.subhead {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 40px;
+  letter-spacing: -0.01em;
+}
+
+.body {
+  font-size: 17px;
+  line-height: 28px;
+}
+
+.body-sm {
+  font-size: 15px;
+  line-height: 24px;
+}
+
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+.text-tertiary {
+  color: var(--text-tertiary);
+}
+
+.accent {
+  color: var(--accent);
+}
+
+.mono-strip {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 20px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+/* Only the auto-trimming meta strip is single-line (JS drops trailing
+   segments to fit); disclaimer lines that reuse .mono-strip wrap normally. */
+[data-strip] {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
+}
+
+.mono-label {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 11px;
+  line-height: 18px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+/* Section headings are UPPERCASE MONO per the casing rule */
+.section-heading {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 20px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 32px;
+}
+
+/* ---------- Buttons ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 1;
+  padding: 14px 28px;
+  border-radius: 24px;
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.btn-primary:hover {
+  background: var(--accent-hover);
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid var(--text-primary);
+  color: var(--text-primary);
+  padding: 13px 28px; /* +1px removed for border so height matches primary */
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Text links with hover underline */
+.link {
+  color: var(--text-primary);
+  border-bottom: 1px solid transparent;
+}
+
+.link:hover {
+  border-bottom-color: currentColor;
+  padding-bottom: 2px;
+}
+
+/* ---------- Nav ---------- */
+
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  height: var(--nav-h);
+  background: var(--bg);
+  border-bottom: 1px solid var(--divider);
+}
+
+.nav-inner {
+  max-width: var(--container);
+  height: 100%;
+  margin: 0 auto;
+  padding-inline: var(--pad-x);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.wordmark {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.nav-link {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  color: var(--text-primary);
+}
+
+.nav-link:hover {
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 2px;
+}
+
+.nav-link[aria-current="page"] {
+  color: var(--text-secondary);
+}
+
+.nav-apply {
+  padding: 12px 24px;
+}
+
+.nav-toggle {
+  display: none;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-toggle-bars {
+  display: block;
+  width: 22px;
+  height: 12px;
+  position: relative;
+}
+
+.nav-toggle-bars::before,
+.nav-toggle-bars::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 22px;
+  height: 1px;
+  background: var(--text-primary);
+}
+
+.nav-toggle-bars::before {
+  top: 0;
+}
+.nav-toggle-bars::after {
+  bottom: 0;
+}
+
+/* Full-page mobile overlay */
+.nav-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  padding: 24px var(--pad-x) 48px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 300ms ease, visibility 300ms ease;
+}
+
+.nav-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.nav-overlay-top {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.nav-close {
+  width: 44px;
+  height: 44px;
+  font-size: 24px;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-overlay-links {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 32px;
+}
+
+.nav-overlay-links a {
+  font-family: var(--font-sans);
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.nav-overlay-links a[aria-current="page"] {
+  color: var(--text-secondary);
+}
+
+.nav-overlay .btn {
+  align-self: flex-start;
+  font-size: 17px;
+}
+
+/* ---------- Mono meta-strip placement ---------- */
+
+.meta-strip {
+  padding-top: 24px;
+}
+
+main > .meta-strip:first-child {
+  padding-top: calc(24px);
+}
+
+/* ---------- Hero ---------- */
+
+.hero {
+  /* Fills the screen below the fixed nav; fully visible on load (see NOTES
+     DEVIATIONS: 100svh minus nav rather than a literal 100svh, so the fixed
+     nav doesn't push the hero bottom off-screen). */
+  min-height: calc(100vh - var(--nav-h)); /* fallback first */
+  min-height: calc(100svh - var(--nav-h));
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding-bottom: 96px;
+}
+
+.hero .meta-strip {
+  padding-top: 24px;
+}
+
+.hero-center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0;
+}
+
+.hero h1 {
+  margin-bottom: 32px;
+}
+
+.hero-sub {
+  max-width: 560px;
+  font-size: 20px;
+  line-height: 32px;
+  color: var(--text-secondary);
+  margin-bottom: 32px;
+}
+
+.hero .btn {
+  margin-bottom: 8px;
+}
+
+.hero-btn-note {
+  margin-top: 8px;
+}
+
+.hero-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+  padding-inline: var(--pad-x);
+}
+
+.hero-disclaimer {
+  /* System tag tucked into the hero's bottom-left corner, not centred filler.
+     Positions against .hero (position: relative). The centred ▽ indicator
+     lives in .hero-bottom and is untouched. */
+  position: absolute;
+  bottom: 24px;
+  left: 48px;
+  text-align: left;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 20px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.scroll-indicator {
+  font-size: 14px;
+  color: var(--text-secondary);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ---------- Home: What's Inside ---------- */
+
+.cols-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 64px;
+}
+
+.col-item h3 {
+  font-size: 22px;
+  line-height: 30px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.col-item p {
+  font-size: 15px;
+  line-height: 24px;
+  color: var(--text-secondary);
+}
+
+/* ---------- Home: Who's behind / Ready ---------- */
+
+.prose-narrow {
+  max-width: 560px;
+}
+
+.prose-narrow p + .link,
+.stack-24 > * + * {
+  margin-top: 24px;
+}
+
+.ready-lines p {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  line-height: 20px;
+}
+
+/* ---------- Footer ---------- */
+
+.footer {
+  border-top: 1px solid #4b2e7e;
+  padding-block: 64px 32px;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 48px;
+  margin-bottom: 64px;
+}
+
+.footer-identity {
+  font-size: 15px;
+  line-height: 24px;
+  color: var(--text-secondary);
+  max-width: 320px;
+  margin-top: 16px;
+}
+
+.footer-col h3 {
+  margin-bottom: 16px;
+}
+
+.footer-col li {
+  margin-bottom: 12px;
+}
+
+.footer-col a {
+  font-size: 15px;
+  color: var(--text-primary);
+}
+
+.footer-col a:hover {
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 1px;
+}
+
+.footer-bottom {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+/* ---------- Page header (interior pages) ---------- */
+
+.page-header {
+  padding-top: 48px;
+}
+
+.page-header h1 {
+  margin-bottom: 24px;
+}
+
+.page-header .intro {
+  max-width: 640px;
+  color: var(--text-secondary);
+}
+
+/* ---------- T Levels list ---------- */
+
+.route-block {
+  margin-top: 96px;
+}
+
+.route-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.route-name {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.route-count {
+  white-space: nowrap;
+}
+
+.pathway-list li {
+  font-size: 17px;
+  line-height: 28px;
+  color: var(--text-secondary);
+  padding-left: 24px;
+  margin-bottom: 12px;
+}
+
+.tl-closer {
+  margin-top: 96px;
+}
+
+.tl-closer .disclaimer {
+  margin-top: 32px;
+}
+
+/* ---------- About ---------- */
+
+.about-section {
+  max-width: 640px;
+}
+
+.about-section p + p {
+  margin-top: 24px;
+}
+
+.about-founder {
+  max-width: 560px;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.photo-tbc {
+  width: 360px;
+  max-width: 100%;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto 24px;
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.founder-name {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.founder-role {
+  margin-bottom: 8px;
+}
+
+.founder-meta {
+  margin-bottom: 24px;
+}
+
+.founder-bio {
+  color: var(--text-secondary);
+}
+
+.legal p {
+  color: var(--text-secondary);
+}
+
+.legal p + p {
+  margin-top: 24px;
+}
+
+/* ---------- Apply ---------- */
+
+.apply-grid {
+  display: grid;
+  /* minmax(0,…) so a wide grid item can't blow the track past its container */
+  grid-template-columns: minmax(0, 55fr) minmax(0, 40fr);
+  gap: 5%;
+  align-items: start;
+}
+
+.apply-form,
+.apply-framing {
+  min-width: 0;
+}
+
+.apply-form h1 {
+  margin-bottom: 48px;
+}
+
+.field {
+  margin-bottom: 24px;
+}
+
+.field label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.field input,
+.field select {
+  width: 100%;
+  font-family: var(--font-sans);
+  font-size: 17px;
+  color: var(--text-primary);
+  background: transparent;
+  border: 1px solid var(--divider);
+  border-radius: 4px;
+  padding: 16px 20px;
+}
+
+.field input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.field input:focus,
+.field select:focus {
+  outline: none;
+  border-color: var(--text-primary);
+}
+
+.field select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 52px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9' fill='none'%3E%3Cpath d='M1 1L7 7L13 1' stroke='%238A8A93' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 20px center;
+}
+
+.field select:disabled {
+  color: var(--text-tertiary);
+  opacity: 1;
+}
+
+.field-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.apply-actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.apply-framing {
+  border-left: 1px solid var(--divider);
+  padding-left: 48px;
+}
+
+.framing-block {
+  margin-bottom: 32px;
+}
+
+.framing-block h3 {
+  margin-bottom: 8px;
+}
+
+.framing-block p {
+  font-size: 15px;
+  line-height: 24px;
+  color: var(--text-secondary);
+}
+
+.apply-queue {
+  margin-top: 96px;
+}
+
+.apply-queue p {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  line-height: 20px;
+}
+
+.apply-confirm {
+  max-width: 640px;
+}
+
+.apply-confirm h1 {
+  margin-bottom: 32px;
+}
+
+.apply-confirm p {
+  margin-bottom: 24px;
+}
+
+.is-hidden {
+  display: none !important;
+}
+
+/* ---------- Events ---------- */
+
+.events-intro {
+  max-width: 640px;
+  color: var(--text-secondary);
+}
+
+.event-kind {
+  margin-top: 64px;
+  max-width: 640px;
+}
+
+.event-kind p {
+  color: var(--text-secondary);
+}
+
+.scheduled {
+  margin-top: 96px;
+  max-width: 640px;
+}
+
+.scheduled .subhead {
+  margin-bottom: 24px;
+}
+
+.scheduled p {
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+
+/* ---------- Resources ---------- */
+
+.res-cat {
+  margin-top: 64px;
+  max-width: 720px;
+}
+
+.res-desc {
+  color: var(--text-secondary);
+  margin-bottom: 32px;
+}
+
+.res-item {
+  margin-bottom: 24px;
+}
+
+.res-item a {
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.res-item a:hover {
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 2px;
+}
+
+.res-item .mono-label {
+  margin-top: 8px;
+}
+
+.res-empty {
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.res-closer {
+  margin-top: 96px;
+}
+
+/* ---------- Scroll reveal ---------- */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 500ms var(--ease), transform 500ms var(--ease);
+}
+
+.reveal.in {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---------- Reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+  .scroll-indicator {
+    animation: none;
+  }
+}
+
+/* ============================================================
+   RESPONSIVE — 768px
+   ============================================================ */
+
+@media (max-width: 768px) {
+  :root {
+    --nav-h: 60px;
+    --pad-x: 24px;
+  }
+
+  .section {
+    padding-block: 96px;
+  }
+
+  .h1 {
+    font-size: 44px;
+    line-height: 52px;
+  }
+
+  /* Hero H1 stays two clean lines from 375px up: the longer phrase
+     ("You're not on your own.") is 456px at 44px but only ~327px fits at
+     375, so scale fluidly up toward 44px by the 768 breakpoint. See NOTES
+     DEVIATIONS. */
+  .hero .h1 {
+    font-size: clamp(28px, 7.8vw, 44px);
+    line-height: 1.12;
+  }
+
+  .h2 {
+    font-size: 32px;
+    line-height: 40px;
+  }
+
+  .subhead {
+    font-size: 26px;
+    line-height: 34px;
+  }
+
+  .hero-sub {
+    font-size: 17px;
+    line-height: 26px;
+  }
+
+  .hero-disclaimer {
+    left: 24px;
+  }
+
+  .body {
+    font-size: 16px;
+    line-height: 26px;
+  }
+
+  .mono-strip {
+    font-size: 11px;
+  }
+
+  /* Nav → hamburger */
+  .nav-links {
+    display: none;
+  }
+
+  .nav-toggle {
+    display: flex;
+  }
+
+  /* Stacks */
+  .cols-3 {
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
+
+  .apply-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 64px;
+  }
+
+  .apply-framing {
+    border-left: none;
+    border-top: 1px solid var(--divider);
+    padding-left: 0;
+    padding-top: 48px;
+  }
+
+  .apply-form h1 {
+    margin-bottom: 32px;
+  }
+
+  /* T Levels: count drops below the route name */
+  .route-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+/* ============================================================
+   RESPONSIVE — 480px
+   ============================================================ */
+
+@media (max-width: 480px) {
+  .field-pair {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-sub {
+    padding-inline: 8px;
+  }
+}
+
+/* ============================================================
+   ROUTES MARQUEE (homepage only)
+   ============================================================ */
+
+.routes-marquee {
+  height: 56px;
+  overflow: hidden;
+  border-top: 1px solid #2e2a6b;
+  border-bottom: 1px solid #2e2a6b;
+  display: flex;
+  align-items: center;
+  /* Sits between main and footer, so it isn't covered by the
+     header/main/footer z-index rule — lift it above the grain here. */
+  position: relative;
+  z-index: 1;
+}
+
+.routes-marquee-track {
+  display: flex;
+  flex: none;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  will-change: transform;
+  animation: routes-scroll 60s linear infinite;
+}
+
+/* Hover pauses the scroll — no colour/size/weight change, pause is the only
+   affordance. */
+.routes-marquee:hover .routes-marquee-track {
+  animation-play-state: paused;
+}
+
+.routes-marquee-copy {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+@keyframes routes-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Static single-line fallback: hidden unless prefers-reduced-motion. */
+.routes-marquee-static {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .routes-marquee-track {
+    display: none;
+  }
+  .routes-marquee-static {
+    display: block;
+    flex: 1;
+    min-width: 0;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-inline: var(--pad-x);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #ffffff;
+  }
+}
+
+@media (max-width: 768px) {
+  .routes-marquee {
+    height: 48px;
+  }
+  .routes-marquee-copy,
+  .routes-marquee-static {
+    font-size: 11px;
+  }
+}

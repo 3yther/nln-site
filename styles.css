@@ -120,6 +120,13 @@ footer {
   z-index: 1;
 }
 
+/* Header (which contains the fixed nav) must sit above main's stacking
+   context, or main — a later sibling at the same z-index — paints over the
+   fixed nav's top strip and swallows nav-link clicks. */
+header {
+  z-index: 51;
+}
+
 body.no-scroll {
   overflow: hidden;
 }
@@ -437,12 +444,14 @@ main {
   padding: 24px var(--pad-x) 48px;
   opacity: 0;
   visibility: hidden;
+  pointer-events: none;
   transition: opacity 300ms ease, visibility 300ms ease;
 }
 
 .nav-overlay.open {
   opacity: 1;
   visibility: visible;
+  pointer-events: auto;
 }
 
 .nav-overlay-top {
@@ -1218,5 +1227,20 @@ main > .meta-strip:first-child {
   .routes-marquee-copy,
   .routes-marquee-static {
     font-size: 11px;
+  }
+}
+
+/* Desktop hardening: the mobile overlay must never cover the page (and block
+   nav clicks) at ≥769px, whatever state the JS is in. Uses .nav-toggle — this
+   build has no .hamburger class. */
+@media (min-width: 769px) {
+  .nav-links {
+    display: flex !important;
+  }
+  .nav-toggle {
+    display: none !important;
+  }
+  .nav-overlay {
+    display: none !important;
   }
 }

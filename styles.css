@@ -388,6 +388,9 @@ main {
   /* Transparent over the hero at page top; the bar fades in via ::before */
   background: transparent;
   border-bottom: none;
+  /* Keep the parent in sync with the morphing .nav-inner so any animatable
+     property on the nav shell moves on the same 300ms curve, no cuts. */
+  transition: all 300ms var(--ease);
 }
 
 /* Pseudo-element is the solid bar + hairline that fades/slides in on scroll.
@@ -431,11 +434,10 @@ main {
      square bar. The pill state below animates all of these in ~300ms. */
   border: 1px solid transparent;
   border-radius: 0;
-  transition: max-width 300ms var(--ease), width 300ms var(--ease),
-              height 300ms var(--ease), margin-top 300ms var(--ease),
-              padding 300ms var(--ease), background-color 300ms var(--ease),
-              border-color 300ms var(--ease), border-radius 300ms var(--ease),
-              box-shadow 300ms var(--ease);
+  /* Morph EVERYTHING on one curve: width, max-width, height, margin, padding,
+     background, border, border-radius, box-shadow AND backdrop-filter — the
+     blur was previously left off the list and snapped on, causing the "cut". */
+  transition: all 300ms var(--ease);
 }
 
 /* ---------- Morphing pill (Feature 2) ----------

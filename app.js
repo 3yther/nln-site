@@ -10,10 +10,6 @@
     "(prefers-reduced-motion: reduce)"
   ).matches;
 
-  // The Aurora homepage runs its own GSAP motion (initHomeMotion). All other
-  // pages keep the shared three-tier scroll reveal below.
-  var isHome = document.body.classList.contains("home");
-
   /* ---------- Smooth scroll (Lenis) + GSAP wiring (Feature 1) ----------
      Progressive enhancement. Both libraries come from a CDN; if either fails
      to load — or the user prefers reduced motion — every guard below is false
@@ -147,125 +143,49 @@
        2. IntersectionObserver → the original one-time fade-in.
        3. Neither / reduced motion → show everything immediately. */
 
-  if (isHome) {
-    initHomeMotion();
-  } else {
-    var reveals = document.querySelectorAll(".reveal");
-    if (gsapReady) {
-      reveals.forEach(function (el) {
-        // Drop the CSS transition so it can't lag behind GSAP's scrub updates.
-        el.style.transition = "none";
-        window.gsap.fromTo(
-          el,
-          { autoAlpha: 0, y: 40 },
-          {
-            autoAlpha: 1,
-            y: 0,
-            ease: "none",
-            scrollTrigger: {
-              trigger: el,
-              start: "top 88%",
-              end: "top 52%",
-              scrub: true,
-            },
-          }
-        );
-      });
-    } else if (reduceMotion || !("IntersectionObserver" in window)) {
-      reveals.forEach(function (el) {
-        el.classList.add("in");
-      });
-    } else {
-      var io = new IntersectionObserver(
-        function (entries) {
-          entries.forEach(function (entry) {
-            if (entry.isIntersecting) {
-              var group = entry.target.parentNode.querySelectorAll(":scope > .reveal");
-              var idx = Array.prototype.indexOf.call(group, entry.target);
-              entry.target.style.transitionDelay = Math.max(0, idx) * 80 + "ms";
-              entry.target.classList.add("in");
-              io.unobserve(entry.target);
-            }
-          });
-        },
-        { threshold: 0.15, rootMargin: "0px 0px -8% 0px" }
-      );
-      reveals.forEach(function (el) {
-        io.observe(el);
-      });
-    }
-  }
-
-  /* ---------- Aurora homepage motion (Feature: index.html only) ----------
-     A restrained GSAP program: a hero load-in timeline (~1.2s total) plus
-     scroll-triggered reveals for the sections below. Respects reduced motion
-     and degrades to instantly-visible content if GSAP didn't load. All
-     animated elements carry .reveal, so CSS pre-hides them (no flash) and the
-     fallback path simply flips them to .in. */
-  function initHomeMotion() {
-    // No GSAP (failed to load) or reduced motion → show everything at once.
-    // (Under reduced motion the .reveal media query already reveals; adding
-    // .in makes the non-reduced no-GSAP case safe too.)
-    if (!gsapReady) {
-      document.querySelectorAll(".reveal").forEach(function (el) {
-        el.classList.add("in");
-      });
-      return;
-    }
-
-    var gsap = window.gsap;
-    gsap.registerPlugin(window.ScrollTrigger);
-
-    // Kill the .reveal CSS transition so GSAP owns the timing.
-    gsap.utils.toArray(".reveal").forEach(function (el) {
+  var reveals = document.querySelectorAll(".reveal");
+  if (gsapReady) {
+    reveals.forEach(function (el) {
+      // Drop the CSS transition so it can't lag behind GSAP's scrub updates.
       el.style.transition = "none";
+      window.gsap.fromTo(
+        el,
+        { autoAlpha: 0, y: 40 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          ease: "none",
+          scrollTrigger: {
+            trigger: el,
+            start: "top 88%",
+            end: "top 52%",
+            scrub: true,
+          },
+        }
+      );
     });
-
-    // fromTo helper: end state always makes the element visible (autoAlpha:1),
-    // overriding the .reveal opacity:0 pre-hide.
-    function reveal(target, fromVars, toVars, st) {
-      var to = Object.assign({ autoAlpha: 1, x: 0, y: 0 }, toVars);
-      if (st) to.scrollTrigger = st;
-      return gsap.fromTo(target, Object.assign({ autoAlpha: 0 }, fromVars), to);
-    }
-
-    // HERO — load-in timeline (total under ~1.2s). Each step ends at
-    // autoAlpha:1 / y:0 to override the .reveal opacity:0 pre-hide.
-    var tl = gsap.timeline({
-      defaults: { ease: "power2.out", autoAlpha: 1, y: 0 },
+  } else if (reduceMotion || !("IntersectionObserver" in window)) {
+    reveals.forEach(function (el) {
+      el.classList.add("in");
     });
-    tl.fromTo(".hero .meta-strip", { autoAlpha: 0, y: 8 }, { duration: 0.5 }, 0)
-      .fromTo(".hero .level-tag", { autoAlpha: 0, y: 8 }, { duration: 0.5 }, 0.1)
-      .fromTo(".hero .h1", { autoAlpha: 0, y: 16 }, { duration: 0.7 }, 0.2)
-      .fromTo(".hero .hero-sub", { autoAlpha: 0, y: 12 }, { duration: 0.5 }, 0.35)
-      .fromTo(".hero .hero-cta", { autoAlpha: 0, y: 12 }, { duration: 0.5 }, 0.5)
-      .fromTo(".hero .hero-disclaimer", { autoAlpha: 0 }, { duration: 0.4 }, 0.7);
-
-    // SECTION TITLES — fade + slide up when they enter at 85%.
-    gsap.utils.toArray(".section-heading").forEach(function (el) {
-      reveal(el, { y: 12 }, { duration: 0.6, ease: "power2.out" }, {
-        trigger: el,
-        start: "top 85%",
-      });
-    });
-
-    // "HOW IT WORKS" step cards — staggered when the section is 20% in view.
-    reveal(
-      ".levels .level-card",
-      { y: 20 },
-      { duration: 0.6, ease: "power3.out", stagger: 0.08 },
-      { trigger: ".levels", start: "top 80%" }
+  } else {
+    var io = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            var group = entry.target.parentNode.querySelectorAll(":scope > .reveal");
+            var idx = Array.prototype.indexOf.call(group, entry.target);
+            entry.target.style.transitionDelay = Math.max(0, idx) * 80 + "ms";
+            entry.target.classList.add("in");
+            io.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.15, rootMargin: "0px 0px -8% 0px" }
     );
-
-    // "WHO'S BEHIND NLN" split — text up, visual in from the right, together.
-    var behindST = { trigger: ".behind-split", start: "top 82%" };
-    reveal(".behind-text", { y: 16 }, { duration: 0.7 }, behindST);
-    reveal(".behind-visual", { x: 30 }, { duration: 0.7 }, behindST);
-
-    // "READY?" — title scales in, body follows, when the section enters.
-    var readyST = { trigger: ".ready-section", start: "top 80%" };
-    reveal(".ready-title", { scale: 0.96 }, { scale: 1, duration: 0.9, ease: "power3.out" }, readyST);
-    reveal(".ready-body", { y: 16 }, { duration: 0.6, ease: "power2.out" }, readyST);
+    reveals.forEach(function (el) {
+      io.observe(el);
+    });
   }
 
   /* ---------- Apply flow ---------- */

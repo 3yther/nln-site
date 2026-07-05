@@ -1271,6 +1271,190 @@ main > .meta-strip:first-child {
   }
 }
 
+/* ============================================================
+   "ASCEND" CONCEPT — hero level-line + levels staircase
+   ============================================================ */
+
+/* Hero content stays above the ascending line */
+.hero .meta-strip,
+.hero-center {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-bottom,
+.hero-disclaimer {
+  z-index: 1;
+}
+
+/* The ascending staircase line behind the headline (subtle accent) */
+.hero-line {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.hero-line-path {
+  /* geometric path length ≈ 990; 1000 covers it as a single dash so the line
+     draws solidly (pathLength normalisation isn't reliable for CSS dashes) */
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: ascend-draw 1.2s ease-out 0.15s forwards;
+}
+
+@keyframes ascend-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.hero-line-nodes circle {
+  opacity: 0;
+  animation: ascend-node 0.4s ease-out forwards;
+}
+.hero-line-nodes circle:nth-of-type(1) {
+  animation-delay: 0.6s;
+}
+.hero-line-nodes circle:nth-of-type(2) {
+  animation-delay: 0.85s;
+}
+.hero-line-nodes circle:nth-of-type(3) {
+  animation-delay: 1.1s;
+}
+
+@keyframes ascend-node {
+  to {
+    opacity: 1;
+  }
+}
+
+/* "You are here" tag above the headline — plants the climb metaphor */
+.level-tag {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 20px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+}
+
+/* ---------- Levels staircase ("How it works") ---------- */
+.levels-wrap {
+  position: relative;
+  margin-top: 64px;
+}
+
+.levels {
+  list-style: none;
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  align-items: start;
+  gap: 24px;
+}
+
+/* Desktop: each level sits progressively higher — a rising staircase */
+.level-card {
+  position: relative;
+  z-index: 1;
+}
+.level-card:nth-child(1) {
+  margin-top: 132px;
+}
+.level-card:nth-child(2) {
+  margin-top: 88px;
+}
+.level-card:nth-child(3) {
+  margin-top: 44px;
+}
+.level-card:nth-child(4) {
+  margin-top: 0;
+}
+
+/* Stepped gradient connector behind the climbing cards (echoes the hero) */
+.levels-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 174px;
+  z-index: 0;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.level-num {
+  display: block;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 14px;
+}
+
+.level-card h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 22px;
+  line-height: 1.15;
+  margin-bottom: 10px;
+}
+
+.level-card p {
+  font-size: 15px;
+  line-height: 24px;
+  color: var(--text-secondary);
+}
+
+/* Reduced motion: line fully drawn, nodes shown, no drawing animation */
+@media (prefers-reduced-motion: reduce) {
+  .hero-line-path {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+  .hero-line-nodes circle {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+/* Mobile: staircase collapses to a clean vertical stack with a left line */
+@media (max-width: 768px) {
+  .levels-wrap {
+    margin-top: 40px;
+  }
+  .levels {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding-left: 28px;
+  }
+  .level-card {
+    margin-top: 0 !important;
+  }
+  .levels-line {
+    display: none;
+  }
+  .levels::before {
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 6px;
+    bottom: 6px;
+    width: 2px;
+    border-radius: 2px;
+    background: var(--brand-gradient);
+    opacity: 0.55;
+  }
+}
+
 /* ---------- Scroll reveal ---------- */
 
 .reveal {

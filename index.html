@@ -45,12 +45,30 @@
   <main id="main">
 
     <section class="hero">
+      <svg class="hero-line" viewBox="0 0 900 360" fill="none" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+        <defs>
+          <linearGradient id="ascendGrad" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0" stop-color="#2b3a8c"/>
+            <stop offset="0.55" stop-color="#4b2e7e"/>
+            <stop offset="1" stop-color="#6b1f63"/>
+          </linearGradient>
+        </defs>
+        <path class="hero-line-path" d="M60 300 H260 V230 H460 V160 H660 V90 H840"
+          stroke="url(#ascendGrad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+          vector-effect="non-scaling-stroke"/>
+        <g class="hero-line-nodes">
+          <circle cx="260" cy="230" r="4" fill="#4b2e7e"/>
+          <circle cx="460" cy="160" r="4" fill="#5a2870"/>
+          <circle cx="660" cy="90" r="4" fill="#6b1f63"/>
+        </g>
+      </svg>
       <div class="meta-strip">
         <div class="container">
           <p class="mono-strip" data-strip>NLN · Independent · For people doing T Levels</p>
         </div>
       </div>
       <div class="container hero-center">
+        <p class="level-tag">Level <span class="t-accent">01</span> — You are here</p>
         <h1 class="h1">Doing a <span class="t-accent">T</span>&nbsp;Level?<br>You&rsquo;re not on your own.</h1>
         <p class="hero-sub">
           The T&nbsp;Level community for students across the UK. Placement help, honest
@@ -66,32 +84,44 @@
       <p class="hero-disclaimer">Independent student project · Not affiliated with the DfE or IfATE</p>
     </section>
 
-    <section class="section">
+    <section class="section levels-section">
       <div class="container">
-        <h2 class="section-heading reveal">What&rsquo;s inside</h2>
-        <div class="cols-3">
-          <div class="col-item card reveal">
-            <svg class="icon card-icon" viewBox="0 0 24 24" aria-hidden="true">
-              <circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/>
-            </svg>
-            <h3>Placement help</h3>
-            <p>Find out what employers actually want, how other students got their placements, and what worked for them.</p>
-          </div>
-          <div class="col-item card reveal">
-            <svg class="icon card-icon" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M20 14a2 2 0 0 1-2 2H8l-4 3V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2z"/>
-            </svg>
-            <h3>Real advice</h3>
-            <p>From students who&rsquo;ve done what you&rsquo;re doing — not from a careers adviser, from people one year ahead of you.</p>
-          </div>
-          <div class="col-item card reveal">
-            <svg class="icon card-icon" viewBox="0 0 24 24" aria-hidden="true">
-              <circle cx="6" cy="7" r="2.4"/><circle cx="18" cy="7" r="2.4"/><circle cx="12" cy="17" r="2.4"/>
-              <path d="M8.1 8.2l2.9 6.6M15.9 8.2l-2.9 6.6M8.3 7h7.4"/>
-            </svg>
-            <h3>People on your route</h3>
-            <p>Connect across colleges with others doing your T&nbsp;Level. Digital, Construction, Health&nbsp;&amp; Science, all the routes.</p>
-          </div>
+        <h2 class="section-heading reveal">How it works</h2>
+        <div class="levels-wrap">
+          <svg class="levels-line" viewBox="0 0 1000 174" fill="none" preserveAspectRatio="none" aria-hidden="true">
+            <defs>
+              <linearGradient id="ascendGrad2" x1="0" y1="1" x2="1" y2="0">
+                <stop offset="0" stop-color="#2b3a8c"/>
+                <stop offset="0.55" stop-color="#4b2e7e"/>
+                <stop offset="1" stop-color="#6b1f63"/>
+              </linearGradient>
+            </defs>
+            <path d="M40 150 H250 V106 H500 V62 H750 V18 H960" stroke="url(#ascendGrad2)"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              vector-effect="non-scaling-stroke"/>
+          </svg>
+          <ol class="levels">
+            <li class="level-card card reveal">
+              <span class="level-num">Level <span class="t-accent">01</span></span>
+              <h3>Join</h3>
+              <p>Apply and get vetted. Everyone in the community is doing a T&nbsp;Level, has done one, or is about to start.</p>
+            </li>
+            <li class="level-card card reveal">
+              <span class="level-num">Level <span class="t-accent">02</span></span>
+              <h3>Connect</h3>
+              <p>Meet people on your route across colleges. Ask the questions you can&rsquo;t ask anywhere else.</p>
+            </li>
+            <li class="level-card card reveal">
+              <span class="level-num">Level <span class="t-accent">03</span></span>
+              <h3>Grow</h3>
+              <p>Placement help, honest advice, and resources written by students who&rsquo;ve done it.</p>
+            </li>
+            <li class="level-card card reveal">
+              <span class="level-num">Level <span class="t-accent">04</span></span>
+              <h3>Level Up</h3>
+              <p>Opportunities, introductions, and a network that keeps opening doors.</p>
+            </li>
+          </ol>
         </div>
       </div>
     </section>

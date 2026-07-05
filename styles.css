@@ -423,20 +423,28 @@ main {
 }
 
 .nav-inner {
+  width: 100%;
   max-width: var(--container);
-  height: 100%;
+  height: var(--nav-h);
   margin: 0 auto;
   padding-inline: var(--pad-x);
   display: flex;
   align-items: center;
   justify-content: space-between;
   /* Morph target: base (top-of-page) state is a full-width, transparent,
-     square bar. The pill state below animates all of these in ~300ms. */
+     square bar. Every property that changes in the pill state below is given
+     an EXPLICIT, same-type start value here so the transition has something
+     interpolatable to animate from. Leaving width:auto / height:100% /
+     backdrop-filter:none / background+box-shadow unset made those props snap
+     instantly (no interpolation) while the rest eased — the "cut" feel. */
   border: 1px solid transparent;
   border-radius: 0;
+  background: rgba(35, 38, 89, 0);            /* same hue as pill, 0 alpha → fades in */
+  -webkit-backdrop-filter: blur(0px) saturate(1);
+  backdrop-filter: blur(0px) saturate(1);     /* blur(0)→blur(14px), matched functions */
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0);   /* transparent → visible, same geometry */
   /* Morph EVERYTHING on one curve: width, max-width, height, margin, padding,
-     background, border, border-radius, box-shadow AND backdrop-filter — the
-     blur was previously left off the list and snapped on, causing the "cut". */
+     background, border, border-radius, box-shadow AND backdrop-filter. */
   transition: all 300ms var(--ease);
 }
 

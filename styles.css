@@ -463,7 +463,7 @@ main {
 
 .nav.scrolled .nav-inner {
   width: calc(100% - 24px);
-  max-width: 960px;
+  max-width: 1120px;    /* near the 1200px bar width — same footprint, reshaped */
   height: 64px;         /* 72 → 64: barely shorter, keeps its weight */
   margin-top: 4px;      /* tuck to the top so it stays a prominent bar */
   padding-inline: 32px; /* roomy, not pinched */

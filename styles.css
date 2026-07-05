@@ -52,15 +52,21 @@
 /* ---------- Tokens ---------- */
 
 :root {
-  --bg: #1e588a;
-  --surface: #245e93;
+  --bg: #1b1e4e;            /* deep navy base — the flat canvas */
+  --surface: #232659;       /* solid raised tone (photo, skip-link) */
+  --card: rgba(255, 255, 255, 0.025); /* subtle card fill over navy */
+  --card-border: rgba(255, 255, 255, 0.08);
   --text-primary: #ffffff;
-  --text-secondary: #bdccde;
-  --text-tertiary: #94a8bf;
-  --divider: #2c6ba3;
-  --accent: #ff5a36;
+  --text-secondary: #c3c8e6; /* lavender-grey — reads calm on navy */
+  --text-tertiary: #9096c6;  /* dimmer label tone (verified AA on navy) */
+  --divider: rgba(255, 255, 255, 0.12);
+  --accent: #ff5a36;        /* the one accent — used scarcely */
   --accent-hover: #e64a2a;
   --on-accent: #0a0a0a;
+
+  /* Signature brand gradient (from the logo): blue → purple → magenta.
+     Used only as an accent — card-hover edges, icon hovers, tiny ticks. */
+  --brand-gradient: linear-gradient(135deg, #2b3a8c 0%, #4b2e7e 55%, #6b1f63 100%);
 
   --font-display: "Stack Sans Headline", "Inter", system-ui, sans-serif;
   --font-sans: "Stack Sans Text", "Inter", system-ui, sans-serif;
@@ -310,7 +316,16 @@ main {
   line-height: 1;
   padding: 14px 28px;
   border-radius: 24px;
-  transition: background-color 150ms ease, border-color 150ms ease;
+  transition: background-color 180ms ease-out, border-color 180ms ease-out,
+    transform 180ms ease-out;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+.btn:active {
+  transform: translateY(0);
 }
 
 .btn-primary {
@@ -333,15 +348,32 @@ main {
   background: rgba(255, 255, 255, 0.08);
 }
 
-/* Text links with hover underline */
+/* Text links: colour eases to orange, underline wipes in from the left */
 .link {
   color: var(--text-primary);
-  border-bottom: 1px solid transparent;
+  position: relative;
+  transition: color 180ms ease-out;
+}
+
+.link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 200ms ease-out;
 }
 
 .link:hover {
-  border-bottom-color: currentColor;
-  padding-bottom: 2px;
+  color: var(--accent);
+}
+
+.link:hover::after {
+  transform: scaleX(1);
 }
 
 /* ---------- Nav ---------- */
@@ -406,6 +438,22 @@ main {
   color: var(--text-primary);
 }
 
+/* Nav logo lockup: the wordmark set in the display face, with the orange "T"
+   of NEXT as the brand signature. (Footer keeps the compact mono wordmark.) */
+.nav .wordmark {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 19px;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+
+/* The orange-T motif — the "T" in T Level. Used in the logo and major
+   headings only, never in body copy. */
+.t-accent {
+  color: var(--accent);
+}
+
 .nav-links {
   display: flex;
   align-items: center;
@@ -413,14 +461,29 @@ main {
 }
 
 .nav-link {
+  position: relative;
   font-family: var(--font-sans);
   font-size: 15px;
   color: var(--text-primary);
+  transition: color 150ms ease-out;
 }
 
-.nav-link:hover {
-  border-bottom: 1px solid currentColor;
-  padding-bottom: 2px;
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -6px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 180ms ease-out;
+}
+
+.nav-link:hover::after,
+.nav-link[aria-current="page"]::after {
+  transform: scaleX(1);
 }
 
 .nav-link[aria-current="page"] {
@@ -861,10 +924,11 @@ main > .meta-strip:first-child {
   font-family: var(--font-sans);
   font-size: 17px;
   color: var(--text-primary);
-  background: transparent;
-  border: 1px solid var(--divider);
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 8px;
   padding: 16px 20px;
+  transition: border-color 150ms ease-out, box-shadow 150ms ease-out;
 }
 
 .field input::placeholder {
@@ -874,7 +938,8 @@ main > .meta-strip:first-child {
 .field input:focus,
 .field select:focus {
   outline: none;
-  border-color: var(--text-primary);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(255, 90, 54, 0.25);
 }
 
 .field select {
@@ -1025,6 +1090,187 @@ main > .meta-strip:first-child {
   margin-top: 96px;
 }
 
+/* ============================================================
+   VISUAL UPGRADE — gradient accents, line icons, cards
+   ============================================================ */
+
+/* Hero: one faint radial wash behind the headline — depth on the flat navy */
+.hero {
+  background: radial-gradient(
+    ellipse 70% 52% at 50% 42%,
+    rgba(75, 46, 126, 0.35) 0%,
+    transparent 65%
+  );
+}
+
+/* A small gradient tick before mono section headings */
+.section-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.section-heading::before {
+  content: "";
+  flex: none;
+  width: 22px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--brand-gradient);
+}
+
+/* ---------- Thin line icons ---------- */
+.icon {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  color: var(--text-secondary);
+  transition: color 200ms ease-out;
+}
+
+.icon-sm {
+  width: 16px;
+  height: 16px;
+}
+
+/* ---------- Cards (used only in the three named spots) ---------- */
+.card {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 32px;
+  transition: transform 200ms ease-out, border-color 200ms ease-out,
+    box-shadow 200ms ease-out;
+}
+
+/* Gradient edge that fades in on hover — a masked 1px ring, respects radius */
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--brand-gradient);
+  -webkit-mask: linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 200ms ease-out;
+  pointer-events: none;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  border-color: transparent;
+  box-shadow: 0 14px 34px -20px rgba(43, 58, 140, 0.7);
+}
+
+.card:hover::after {
+  opacity: 1;
+}
+
+.card:hover .icon {
+  color: var(--accent);
+}
+
+.card-icon {
+  margin-bottom: 20px;
+}
+
+/* Home "What's inside": the three columns become cards */
+.cols-3 {
+  gap: 24px;
+}
+
+/* ---------- T Levels: responsive card grid ---------- */
+.route-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  margin-top: 56px;
+}
+
+.route-grid .route-block {
+  margin-top: 0; /* grid gap handles spacing inside the grid */
+}
+
+.route-card .route-icon {
+  color: var(--text-tertiary);
+  margin-bottom: 16px;
+  transition: color 200ms ease-out;
+}
+
+.route-card:hover .route-icon {
+  color: var(--accent);
+}
+
+.route-card .route-head {
+  margin-bottom: 16px;
+}
+
+.route-card .pathway-list li:last-child {
+  margin-bottom: 0;
+}
+
+/* ---------- Apply framing: subtle mini-cards with icons ---------- */
+.apply-framing {
+  border-left: none;
+  padding-left: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.framing-block {
+  margin-bottom: 0;
+  display: grid;
+  grid-template-columns: 16px 1fr;
+  column-gap: 10px;
+  align-items: center;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 18px 20px;
+  transition: border-color 180ms ease-out;
+}
+
+.framing-block .icon {
+  color: var(--text-tertiary);
+}
+
+.framing-block:hover {
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.framing-block:hover .icon {
+  color: var(--accent);
+}
+
+.framing-block h3 {
+  grid-column: 2;
+  margin-bottom: 0;
+}
+
+.framing-block p {
+  grid-column: 2;
+  margin-top: 6px;
+}
+
+/* Reduced motion: keep colour/fade, drop all lift movement */
+@media (prefers-reduced-motion: reduce) {
+  .btn:hover,
+  .card:hover {
+    transform: none !important;
+  }
+}
+
 /* ---------- Scroll reveal ---------- */
 
 .reveal {
@@ -1125,7 +1371,11 @@ main > .meta-strip:first-child {
   /* Stacks */
   .cols-3 {
     grid-template-columns: 1fr;
-    gap: 48px;
+    gap: 24px;
+  }
+
+  .route-grid {
+    grid-template-columns: 1fr;
   }
 
   .footer-grid {

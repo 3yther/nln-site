@@ -442,7 +442,7 @@ main {
   background: rgba(35, 38, 89, 0);            /* same hue as pill, 0 alpha → fades in */
   -webkit-backdrop-filter: blur(0px) saturate(1);
   backdrop-filter: blur(0px) saturate(1);     /* blur(0)→blur(14px), matched functions */
-  box-shadow: 0 10px 34px rgba(0, 0, 0, 0);   /* transparent → visible, same geometry */
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0);   /* transparent → visible, same geometry */
   /* Morph EVERYTHING on one curve: width, max-width, height, margin, padding,
      background, border, border-radius, box-shadow AND backdrop-filter. */
   transition: all 300ms var(--ease);
@@ -450,10 +450,13 @@ main {
 
 /* ---------- Morphing pill (Feature 2) ----------
    Past the 80px threshold (.scrolled toggled in app.js) the full-width bar
-   collapses into a floating rounded pill: capped width, tighter padding,
-   translucent --surface fill + blur, hairline border, soft shadow. The old
-   full-width ::before surface is switched off so the pill is the only chrome.
-   Sits inside the 72px fixed .nav box, so page content never shifts. */
+   RESHAPES into a floating rounded pill — same visual weight, new silhouette:
+   width caps to 960px and the corners round to a pill, but the height (64 vs
+   72px) and padding (32 vs 48px) stay generous so it reads as a style
+   evolution, not a shrink. Translucent --surface fill + blur, hairline border,
+   and a deeper shadow give it presence. The old full-width ::before surface is
+   switched off so the pill is the only chrome. Sits inside the 72px fixed .nav
+   box, so page content never shifts. */
 .nav.scrolled::before {
   opacity: 0;
 }
@@ -461,15 +464,15 @@ main {
 .nav.scrolled .nav-inner {
   width: calc(100% - 24px);
   max-width: 960px;
-  height: 54px;
-  margin-top: 10px;
-  padding-inline: 22px;
+  height: 64px;         /* 72 → 64: barely shorter, keeps its weight */
+  margin-top: 4px;      /* tuck to the top so it stays a prominent bar */
+  padding-inline: 32px; /* roomy, not pinched */
   background: rgba(35, 38, 89, 0.78); /* --surface #232659 @ .78 — blur fallback */
   -webkit-backdrop-filter: blur(14px) saturate(1.3);
   backdrop-filter: blur(14px) saturate(1.3);
   border-color: var(--card-border);
   border-radius: 999px;
-  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.28);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.34);
 }
 
 .wordmark {
@@ -1544,11 +1547,12 @@ main > .meta-strip:first-child {
     padding-block: 96px;
   }
 
-  /* Pill must fit inside the shorter 60px mobile nav box (44 + 8 = 52 < 60) */
+  /* Reshape, don't shrink: keep the pill substantial inside the 60px mobile
+     nav box (52 + 4 = 56 < 60). */
   .nav.scrolled .nav-inner {
-    height: 44px;
-    margin-top: 8px;
-    padding-inline: 16px;
+    height: 52px;
+    margin-top: 4px;
+    padding-inline: 20px;
   }
 
   .h1 {

@@ -48,6 +48,32 @@
     });
   }
 
+  /* ---------- Nav: transparent at top, solid bar fades in on scroll ----------
+     Toggles .scrolled on the nav past 80px. rAF throttles so we compute at
+     most once per frame. Initial-load check covers refresh/back at scroll>80.
+     Reduced-motion is handled in CSS (fade only, no slide). */
+
+  var nav = document.querySelector(".nav");
+  if (nav) {
+    var SCROLL_THRESHOLD = 80;
+    var navTicking = false;
+
+    function updateNavState() {
+      nav.classList.toggle("scrolled", window.scrollY > SCROLL_THRESHOLD);
+      navTicking = false;
+    }
+
+    function onNavScroll() {
+      if (!navTicking) {
+        navTicking = true;
+        window.requestAnimationFrame(updateNavState);
+      }
+    }
+
+    window.addEventListener("scroll", onNavScroll, { passive: true });
+    updateNavState(); // apply correct state on load (handles refresh while scrolled)
+  }
+
   /* ---------- Mono meta-strip: drop last segment if it would wrap ---------- */
 
   function fitStrip() {

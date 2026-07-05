@@ -353,8 +353,38 @@ main {
   right: 0;
   z-index: 100;
   height: var(--nav-h);
-  background: var(--bg);
+  /* Transparent over the hero at page top; the bar fades in via ::before */
+  background: transparent;
+  border-bottom: none;
+}
+
+/* Pseudo-element is the solid bar + hairline that fades/slides in on scroll.
+   z-index: -1 keeps it behind the wordmark and links, which stay put. */
+.nav::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--surface);
   border-bottom: 1px solid var(--divider);
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 280ms var(--ease),
+              transform 280ms var(--ease);
+  z-index: -1;
+  pointer-events: none;
+}
+
+.nav.scrolled::before {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Reduced motion: keep the fade, drop the slide */
+@media (prefers-reduced-motion: reduce) {
+  .nav::before {
+    transform: none;
+    transition: opacity 200ms ease;
+  }
 }
 
 .nav-inner {

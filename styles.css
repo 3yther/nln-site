@@ -52,12 +52,12 @@
 /* ---------- Tokens ---------- */
 
 :root {
-  --bg: #1b1e4e;
-  --surface: #251c55;
+  --bg: #1e588a;
+  --surface: #245e93;
   --text-primary: #ffffff;
-  --text-secondary: #a8aac9;
-  --text-tertiary: #7b7da0;
-  --divider: #2e2a6b;
+  --text-secondary: #bdccde;
+  --text-tertiary: #94a8bf;
+  --divider: #2c6ba3;
   --accent: #ff5a36;
   --accent-hover: #e64a2a;
   --on-accent: #0a0a0a;
@@ -641,7 +641,7 @@ main > .meta-strip:first-child {
 /* ---------- Footer ---------- */
 
 .footer {
-  border-top: 1px solid #4b2e7e;
+  border-top: 1px solid var(--divider);
   padding-block: 64px 32px;
 }
 
@@ -1148,8 +1148,8 @@ main > .meta-strip:first-child {
 .routes-marquee {
   height: 56px;
   overflow: hidden;
-  border-top: 1px solid #2e2a6b;
-  border-bottom: 1px solid #2e2a6b;
+  border-top: 1px solid var(--divider);
+  border-bottom: 1px solid var(--divider);
   display: flex;
   align-items: center;
   /* Sits between main and footer, so it isn't covered by the

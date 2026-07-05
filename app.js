@@ -10,6 +10,51 @@
     "(prefers-reduced-motion: reduce)"
   ).matches;
 
+  /* ---------- Smooth scroll (Lenis) + GSAP wiring (Feature 1) ----------
+     Progressive enhancement. Both libraries come from a CDN; if either fails
+     to load — or the user prefers reduced motion — every guard below is false
+     and we fall through to native scroll + the one-time reveal further down.
+     Lenis default (wrapper: window) drives native scroll, so it does NOT wrap
+     the page in a transform — the fixed grain and fixed nav stay intact. */
+
+  var lenis = null;
+  var gsapReady =
+    !reduceMotion &&
+    typeof window.gsap !== "undefined" &&
+    typeof window.ScrollTrigger !== "undefined";
+
+  if (!reduceMotion && typeof window.Lenis !== "undefined") {
+    lenis = new window.Lenis({ duration: 1.1, smoothWheel: true });
+  }
+
+  if (lenis && gsapReady) {
+    // Let GSAP's ticker drive Lenis and keep ScrollTrigger in sync with it.
+    window.gsap.registerPlugin(window.ScrollTrigger);
+    lenis.on("scroll", window.ScrollTrigger.update);
+    window.gsap.ticker.add(function (time) {
+      lenis.raf(time * 1000); // gsap ticker is in seconds, lenis wants ms
+    });
+    window.gsap.ticker.lagSmoothing(0);
+  } else if (lenis) {
+    // Lenis loaded but GSAP didn't: run our own rAF loop.
+    (function raf(time) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    })(0);
+  } else if (gsapReady) {
+    // GSAP loaded but Lenis didn't: ScrollTrigger works off native scroll.
+    window.gsap.registerPlugin(window.ScrollTrigger);
+  }
+
+  // Scroll-to helper used by the Apply flow: prefer Lenis, else native.
+  function smoothScrollTop() {
+    if (lenis) {
+      lenis.scrollTo(0, { immediate: reduceMotion });
+    } else {
+      window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+    }
+  }
+
   /* ---------- Mobile nav overlay ---------- */
 
   var toggle = document.querySelector(".nav-toggle");
@@ -90,10 +135,36 @@
   fitStrip();
   window.addEventListener("resize", fitStrip);
 
-  /* ---------- Scroll reveal (once) ---------- */
+  /* ---------- Scroll reveal ----------
+     Three tiers, best available wins:
+       1. GSAP + ScrollTrigger loaded → continuous scroll-LINKED reveal:
+          each element scrubs from (y:40, faded) to (y:0, visible) tied to its
+          scroll position — the "dramatic scrolling" feel.
+       2. IntersectionObserver → the original one-time fade-in.
+       3. Neither / reduced motion → show everything immediately. */
 
   var reveals = document.querySelectorAll(".reveal");
-  if (reduceMotion || !("IntersectionObserver" in window)) {
+  if (gsapReady) {
+    reveals.forEach(function (el) {
+      // Drop the CSS transition so it can't lag behind GSAP's scrub updates.
+      el.style.transition = "none";
+      window.gsap.fromTo(
+        el,
+        { autoAlpha: 0, y: 40 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          ease: "none",
+          scrollTrigger: {
+            trigger: el,
+            start: "top 88%",
+            end: "top 52%",
+            scrub: true,
+          },
+        }
+      );
+    });
+  } else if (reduceMotion || !("IntersectionObserver" in window)) {
     reveals.forEach(function (el) {
       el.classList.add("in");
     });
@@ -221,7 +292,9 @@
         strip.dataset.full = stripText[view];
         strip.textContent = stripText[view];
       }
-      window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+      smoothScrollTop();
+      // View swap changes document height; let ScrollTrigger recompute.
+      if (gsapReady) window.ScrollTrigger.refresh();
     }
 
     // Step 1 → 2

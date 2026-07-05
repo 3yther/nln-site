@@ -5,11 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Next Level Network</title>
   <meta name="description" content="The T Level community for students across the UK — placement help, honest advice, and other people doing your route.">
-  <meta name="theme-color" content="#000000">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23000000'/%3E%3Ctext x='16' y='23' font-family='monospace' font-size='20' font-weight='700' fill='%23ffffff' text-anchor='middle'%3EN%3C/text%3E%3C/svg%3E">
+  <meta name="theme-color" content="#080b13">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23080b13'/%3E%3Ctext x='16' y='23' font-family='monospace' font-size='20' font-weight='700' fill='%23b78cff' text-anchor='middle'%3EN%3C/text%3E%3C/svg%3E">
+  <!-- Aurora variant (homepage only): Syne display + Manrope body via Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Manrope:wght@400;500;600&family=Syne:wght@600;700;800&display=swap">
   <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="home">
   <a class="skip-link" href="#main">Skip to content</a>
 
   <header>
@@ -62,26 +66,28 @@
           <circle cx="660" cy="90" r="4" fill="#6b1f63"/>
         </g>
       </svg>
-      <div class="meta-strip">
+      <div class="meta-strip reveal">
         <div class="container">
           <p class="mono-strip" data-strip>NLN · Independent · For people doing T Levels</p>
         </div>
       </div>
       <div class="container hero-center">
-        <p class="level-tag">Level <span class="t-accent">01</span> — You are here</p>
-        <h1 class="h1">Doing a <span class="t-accent">T</span>&nbsp;Level?<br>You&rsquo;re not on your own.</h1>
-        <p class="hero-sub">
+        <p class="level-tag reveal">Level <span class="t-accent">01</span> — You are here</p>
+        <h1 class="h1 reveal">Doing a <span class="t-accent">T</span>&nbsp;Level?<br><span class="hero-accent">You&rsquo;re not on your own.</span></h1>
+        <p class="hero-sub reveal">
           The T&nbsp;Level community for students across the UK. Placement help, honest
           advice, and other people doing your route — from Digital to Construction to
           Health&nbsp;&amp; Science.
         </p>
-        <a class="btn btn-primary" href="apply.html">Apply to join →</a>
-        <p class="mono-label hero-btn-note">Manually reviewed · Usually within 48 hours</p>
+        <div class="hero-cta reveal">
+          <a class="btn btn-primary" href="apply.html">Apply to join →</a>
+          <p class="mono-label hero-btn-note">Manually reviewed · Usually within 48 hours</p>
+        </div>
       </div>
       <div class="hero-bottom">
         <span class="scroll-indicator" aria-hidden="true">▽</span>
       </div>
-      <p class="hero-disclaimer">Independent student project · Not affiliated with the DfE or IfATE</p>
+      <p class="hero-disclaimer reveal">Independent student project · Not affiliated with the DfE or IfATE</p>
     </section>
 
     <section class="section levels-section">
@@ -129,21 +135,24 @@
     <section class="section">
       <div class="container">
         <h2 class="section-heading reveal">Who&rsquo;s behind NLN</h2>
-        <div class="prose-narrow reveal">
-          <p class="body">
-            NLN is an independent student project, run by Eliud Awuah, a T&nbsp;Level
-            Digital student. Started in 2026 because there wasn&rsquo;t a proper place for
-            T&nbsp;Level students to actually talk to each other across the country.
-          </p>
-          <p style="margin-top: 24px;"><a class="link" href="about.html">Read more about us →</a></p>
+        <div class="behind-split">
+          <div class="behind-text reveal">
+            <p class="body">
+              NLN is an independent student project, run by Eliud Awuah, a T&nbsp;Level
+              Digital student. Started in 2026 because there wasn&rsquo;t a proper place for
+              T&nbsp;Level students to actually talk to each other across the country.
+            </p>
+            <p style="margin-top: 24px;"><a class="link" href="about.html">Read more about us →</a></p>
+          </div>
+          <div class="behind-visual reveal" aria-hidden="true"><span>NLN</span></div>
         </div>
       </div>
     </section>
 
-    <section class="section">
+    <section class="section ready-section">
       <div class="container">
-        <div class="reveal">
-          <h2 class="h2">Ready?</h2>
+        <h2 class="h2 ready-title reveal">Ready?</h2>
+        <div class="ready-body reveal">
           <div class="ready-lines" style="margin-top: 32px; margin-bottom: 32px;">
             <p>Applications reviewed manually.</p>
             <p>Usually within 48 hours.</p>

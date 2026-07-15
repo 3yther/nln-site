@@ -135,40 +135,237 @@
   fitStrip();
   window.addEventListener("resize", fitStrip);
 
-  /* ---------- Scroll reveal ----------
-     Three tiers, best available wins:
-       1. GSAP + ScrollTrigger loaded → continuous scroll-LINKED reveal:
-          each element scrubs from (y:40, faded) to (y:0, visible) tied to its
-          scroll position — the "dramatic scrolling" feel.
-       2. IntersectionObserver → the original one-time fade-in.
-       3. Neither / reduced motion → show everything immediately. */
+  /* ---------- Homepage motion (GSAP) ----------
+     Everything in here is additive: each block no-ops unless GSAP loaded and
+     the user allows motion. The resting DOM/CSS is always the finished state,
+     so no-JS and reduced-motion users get the full page with nothing hidden.
 
-  var reveals = document.querySelectorAll(".reveal");
+     BOUNCE: back.out(1.7) is GSAP's twin of the --ease-bounce token in
+     styles.css (cubic-bezier(0.34, 1.56, 0.64, 1)). Change one, change both. */
+
+  var BOUNCE = "back.out(1.7)";
+
+  /* Hero headline cycling. The DOM already holds the FINAL phrase, so we stash
+     its markup (it contains the orange-T span), play the earlier phrases as
+     plain text, then put the real markup back. Runs once on load only. */
+  function buildCycleTimeline() {
+    var el = document.querySelector("[data-cycle]");
+    if (!el) return null;
+    var phrases = (el.dataset.cycle || "").split("|").filter(Boolean);
+    if (!phrases.length) return null;
+
+    var finalHTML = el.innerHTML;
+    // Swap in the first phrase synchronously, before the hero fades in, so the
+    // headline arrives already cycling rather than visibly changing its mind.
+    el.textContent = phrases[0];
+
+    var tl = window.gsap.timeline();
+    phrases.slice(1).concat([null]).forEach(function (next) {
+      tl.to(el, { autoAlpha: 0, y: -8, duration: 0.4, ease: "power2.in" }, "+=0.35")
+        .add(function () {
+          if (next === null) {
+            el.innerHTML = finalHTML; // restore the real headline + orange T
+          } else {
+            el.textContent = next;
+          }
+        })
+        .fromTo(
+          el,
+          { autoAlpha: 0, y: 8 },
+          { autoAlpha: 1, y: 0, duration: 0.4, ease: BOUNCE }
+        );
+    });
+    return tl;
+  }
+
   if (gsapReady) {
-    reveals.forEach(function (el) {
-      // Drop the CSS transition so it can't lag behind GSAP's scrub updates.
-      el.style.transition = "none";
-      window.gsap.fromTo(
-        el,
+    var gsap = window.gsap;
+    var heroIns = document.querySelectorAll("[data-hero-in]");
+
+    /* Hero load-in: staggered 200ms rise. gsap.set runs now (before first
+       paint) so nothing flashes in at full opacity first. */
+    if (heroIns.length) {
+      gsap.set(heroIns, { autoAlpha: 0, y: 24 });
+      var heroTl = gsap.timeline({ delay: 0.15 });
+      heroTl.to(heroIns, {
+        autoAlpha: 1,
+        y: 0,
+        duration: 0.7,
+        stagger: 0.2,
+        ease: BOUNCE,
+      });
+      var cycleTl = buildCycleTimeline();
+      // Start cycling as the H1 itself lands, not after the whole hero.
+      if (cycleTl) heroTl.add(cycleTl, 0.55);
+    }
+
+    /* Parallax: the hero's ascending line trails the scroll, so the copy in
+       front of it reads as nearer. */
+    document.querySelectorAll("[data-parallax]").forEach(function (el) {
+      var depth = parseFloat(el.dataset.parallax) || 0.3;
+      gsap.to(el, {
+        yPercent: depth * 100,
+        ease: "none",
+        scrollTrigger: {
+          trigger: ".hero",
+          start: "top top",
+          end: "bottom top",
+          scrub: true,
+        },
+      });
+    });
+
+    /* Section reveals, grouped per <section> so members stagger together. The
+       levels staircase and the "Who's behind" block opt out — they have their
+       own choreography below. */
+    document.querySelectorAll("main section").forEach(function (sec) {
+      var els = sec.querySelectorAll(
+        ".reveal:not(.level-card):not([data-behind])"
+      );
+      if (!els.length) return;
+      els.forEach(function (el) {
+        el.style.transition = "none"; // CSS .reveal transition would fight GSAP
+      });
+      gsap.fromTo(
+        els,
         { autoAlpha: 0, y: 40 },
         {
           autoAlpha: 1,
           y: 0,
-          ease: "none",
-          scrollTrigger: {
-            trigger: el,
-            start: "top 88%",
-            end: "top 52%",
-            scrub: true,
-          },
+          duration: 0.7,
+          stagger: 0.15,
+          ease: BOUNCE,
+          scrollTrigger: { trigger: sec, start: "top 82%", once: true },
         }
       );
     });
-  } else if (reduceMotion || !("IntersectionObserver" in window)) {
+
+    /* The staircase: cards climb in one at a time, each swinging in off its
+       own Y axis. Tighter 0.1s stagger so the four read as one ascent. */
+    var levelCards = document.querySelectorAll(".level-card");
+    if (levelCards.length) {
+      levelCards.forEach(function (el) {
+        el.style.transition = "none";
+      });
+      gsap.fromTo(
+        levelCards,
+        { autoAlpha: 0, y: 40, rotateY: 3, scale: 0.95 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          rotateY: 0,
+          scale: 1,
+          duration: 0.7,
+          stagger: 0.1,
+          ease: BOUNCE,
+          scrollTrigger: { trigger: ".levels", start: "top 85%", once: true },
+          // Drop the inline transform so :hover isn't fighting a leftover
+          // matrix once the reveal has finished.
+          clearProps: "transform",
+        }
+      );
+    }
+
+    /* "Who's behind": copy slides in from the left. The spec's avatar zoom has
+       nothing to zoom — there's no founder photo on this page (NOTES.md keeps
+       it TBC and bars stock imagery), so the text carries the moment alone. */
+    var behind = document.querySelector("[data-behind]");
+    if (behind) {
+      behind.style.transition = "none";
+      gsap.fromTo(
+        behind,
+        { autoAlpha: 0, x: -40 },
+        {
+          autoAlpha: 1,
+          x: 0,
+          duration: 0.8,
+          ease: BOUNCE,
+          scrollTrigger: { trigger: behind, start: "top 82%", once: true },
+        }
+      );
+    }
+
+    /* Divider rules wipe in from the left / top. */
+    document.querySelectorAll("[data-rule]").forEach(function (el) {
+      gsap.fromTo(
+        el,
+        { scaleX: 0 },
+        {
+          scaleX: 1,
+          duration: 0.8,
+          ease: "power3.out",
+          scrollTrigger: { trigger: el, start: "top 92%", once: true },
+        }
+      );
+    });
+
+    var readyRule = document.querySelector(".ready-rule");
+    if (readyRule) {
+      gsap.fromTo(
+        readyRule,
+        { scaleY: 0 },
+        {
+          scaleY: 1,
+          duration: 0.9,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: ".ready-section",
+            start: "top 80%",
+            once: true,
+          },
+        }
+      );
+    }
+  }
+
+  /* Scroll progress. Deliberately outside the gsapReady/reduced-motion guard:
+     the bar only ever reflects the scroll position the user is already
+     driving, so it isn't autonomous motion. Falls back to a rAF-throttled
+     scroll listener when GSAP is absent. */
+  var progress = document.querySelector("[data-progress]");
+  if (progress && gsapReady) {
+    window.gsap.to(progress, {
+      scaleX: 1,
+      ease: "none",
+      scrollTrigger: {
+        trigger: document.documentElement,
+        start: "top top",
+        end: "bottom bottom",
+        scrub: 0.3,
+      },
+    });
+  } else if (progress) {
+    var progressTicking = false;
+    function updateProgress() {
+      var max = document.documentElement.scrollHeight - window.innerHeight;
+      var pct = max > 0 ? window.scrollY / max : 0;
+      progress.style.transform = "scaleX(" + Math.min(1, Math.max(0, pct)) + ")";
+      progressTicking = false;
+    }
+    window.addEventListener(
+      "scroll",
+      function () {
+        if (!progressTicking) {
+          progressTicking = true;
+          window.requestAnimationFrame(updateProgress);
+        }
+      },
+      { passive: true }
+    );
+    updateProgress();
+  }
+
+  /* ---------- Scroll reveal fallbacks ----------
+     Only reached when GSAP is unavailable:
+       1. IntersectionObserver → the original one-time fade-in.
+       2. Reduced motion / no IO → show everything immediately. */
+
+  var reveals = document.querySelectorAll(".reveal");
+  if (!gsapReady && (reduceMotion || !("IntersectionObserver" in window))) {
     reveals.forEach(function (el) {
       el.classList.add("in");
     });
-  } else {
+  } else if (!gsapReady) {
     var io = new IntersectionObserver(
       function (entries) {
         entries.forEach(function (entry) {

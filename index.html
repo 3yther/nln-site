@@ -12,6 +12,10 @@
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
 
+  <!-- Scroll progress: width driven by app.js, or by ScrollTrigger when GSAP
+       loads. Purely decorative, so it stays out of the a11y tree. -->
+  <div class="scroll-progress" aria-hidden="true"><span data-progress></span></div>
+
   <header>
     <nav class="nav" aria-label="Primary">
       <div class="nav-inner">
@@ -45,7 +49,7 @@
   <main id="main">
 
     <section class="hero">
-      <svg class="hero-line" viewBox="0 0 900 360" fill="none" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <svg class="hero-line" viewBox="0 0 900 360" fill="none" preserveAspectRatio="xMidYMid meet" aria-hidden="true" data-parallax="0.35">
         <defs>
           <linearGradient id="ascendGrad" x1="0" y1="1" x2="1" y2="0">
             <stop offset="0" stop-color="#2b3a8c"/>
@@ -68,21 +72,39 @@
         </div>
       </div>
       <div class="container hero-center">
-        <p class="level-tag">Level <span class="t-accent">01</span> — You are here</p>
-        <h1 class="h1">Doing a <span class="t-accent">T</span>&nbsp;Level?<br>You&rsquo;re not on your own.</h1>
-        <p class="hero-sub">
-          The T&nbsp;Level community for students across the UK. Placement help, honest
-          advice, and other people doing your route — from Digital to Construction to
-          Health&nbsp;&amp; Science.
-        </p>
-        <a class="btn btn-primary" href="apply.html">Apply to join →</a>
-        <p class="mono-label hero-btn-note">Manually reviewed · Usually within 48 hours</p>
+        <div class="hero-copy">
+          <p class="level-tag" data-hero-in>Level <span class="t-accent">01</span> — You are here</p>
+          <!-- The resting DOM text is the FINAL phrase, so no-JS, reduced-motion
+               and assistive tech all get the real headline. app.js cycles the
+               earlier phrases in data-cycle purely as a load-in flourish. -->
+          <h1 class="h1" data-hero-in>
+            <span class="h1-cycle" data-cycle="Starting fresh?|Finding your path?">Doing a <span class="t-accent">T</span>&nbsp;Level?</span><br>You&rsquo;re not on your own.
+          </h1>
+          <p class="hero-sub" data-hero-in>
+            The <span class="hl">T&nbsp;Level community for students</span> across the UK. Placement help, honest
+            advice, and other people doing your route — from Digital to Construction to
+            Health&nbsp;&amp; Science.
+          </p>
+          <div class="hero-cta" data-hero-in>
+            <a class="btn btn-primary" href="apply.html">Apply to join →</a>
+          </div>
+          <!-- Trust pills are the old button note ("Manually reviewed · Usually
+               within 48 hours") split in two. No new claims. Deliberately only
+               two: an "Independent student project" pill duplicated the
+               disclaimer sitting ~100px below it in the same viewport. -->
+          <ul class="trust-pills" data-hero-in>
+            <li class="trust-pill">Manually reviewed</li>
+            <li class="trust-pill">Usually within 48 hours</li>
+          </ul>
+        </div>
       </div>
       <div class="hero-bottom">
         <span class="scroll-indicator" aria-hidden="true">▽</span>
       </div>
       <p class="hero-disclaimer">Independent student project · Not affiliated with the DfE or IfATE</p>
     </section>
+
+    <div class="container"><span class="section-rule" data-rule aria-hidden="true"></span></div>
 
     <section class="section levels-section">
       <div class="container">
@@ -126,12 +148,14 @@
       </div>
     </section>
 
+    <div class="container"><span class="section-rule" data-rule aria-hidden="true"></span></div>
+
     <section class="section">
       <div class="container">
         <h2 class="section-heading reveal">Who&rsquo;s behind NLN</h2>
-        <div class="prose-narrow reveal">
+        <div class="prose-narrow reveal" data-behind>
           <p class="body">
-            NLN is an independent student project, run by Eliud Awuah, a T&nbsp;Level
+            NLN is an independent student project, run by <span class="hl">Eliud Awuah</span>, a T&nbsp;Level
             Digital student. Started in 2026 because there wasn&rsquo;t a proper place for
             T&nbsp;Level students to actually talk to each other across the country.
           </p>
@@ -140,11 +164,16 @@
       </div>
     </section>
 
-    <section class="section">
-      <div class="container">
-        <div class="reveal">
+    <div class="container"><span class="section-rule" data-rule aria-hidden="true"></span></div>
+
+    <!-- Ready?: offset to the right of the 60/40 axis, with the orange rule
+         running the full height of the block rather than stopping at the copy. -->
+    <section class="section ready-section">
+      <div class="container ready-grid">
+        <div class="ready-body reveal">
+          <span class="ready-rule" aria-hidden="true"></span>
           <h2 class="h2">Ready?</h2>
-          <div class="ready-lines" style="margin-top: 32px; margin-bottom: 32px;">
+          <div class="ready-lines">
             <p>Applications reviewed manually.</p>
             <p>Usually within 48 hours.</p>
           </div>

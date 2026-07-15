@@ -108,6 +108,61 @@ stack but is not required or bundled.
    container (observed as horizontal overflow of the form inputs at 375px). This
    is the standard grid-blowout guard and does not change the intended layout.
 
+### Homepage redesign — bold/motion pass
+
+6. **Primary button text stays `--on-accent` on hover, not white.** The spec
+   asked for white on hover. White on `--accent-hover` (#e64a2a) measures
+   **3.9:1** — under the 4.5:1 AA floor for 15px text. The existing near-black
+   is **4.7:1** and passes. Hover still reads as a response: the glow stops
+   pulsing, settles at full strength and widens.
+
+7. **Key-word highlight is a text tint, not a 0.2 background.** The spec asked
+   for an orange background at 0.2 opacity. Over the navy canvas that
+   composites to `rgb(77,43,73)` — red and blue land 4 apart, so it desaturates
+   to mauve — and an inline background fills the whole font content area, so it
+   rendered as a Word-style selection box. Warming the glyphs (`#ffd9cd`) gives
+   the same "faint orange tint, just presence" and survives the dark canvas.
+
+8. **No avatar zoom in "Who's behind".** The spec animates a founder avatar
+   0.8 → 1. There is no photo on the homepage, and item 2 above keeps the
+   founder photo TBC while barring stock imagery. The copy slides in from the
+   left on its own. Revisit once a real photo exists.
+
+9. **The staircase stayed a staircase.** The spec proposed making the first
+   "What's Inside" card 1.5x width (or a 2x2 offset grid) to break the
+   4-column layout. That section is now "How it works" and is already
+   asymmetrical — the four cards climb (`margin-top` 132/88/44/0) along a
+   stepped connector, which is what the Level 01–04 ascend metaphor rests on.
+   Arbitrary width asymmetry would have flattened a meaningful one, so the
+   cards keep the climb and take the new motion instead (rotateY + scale
+   reveal, 0.1s stagger). `.cols-3` in styles.css is dead CSS from the real
+   "What's Inside" section and is left alone here.
+
+10. **Card hover animates the mono "Level 0X", not a Lucide icon.** The spec
+    animates card icons; the homepage cards have none, and Lucide is not a
+    dependency of this deliberately no-build-step site. The numeral is the
+    card's anchor, so it takes the 15deg Y-axis rotate. (The spec's other icon
+    note — a 360deg spin — would read as a gimmick on a text numeral.) Same
+    reason there is no footer social-icon rotation: those are text links.
+
+11. **Trust pills carry existing copy only, and there are two, not three.**
+    They are the old hero button note ("Manually reviewed · Usually within 48
+    hours") split in two, so no pill is a new claim needing verification. An
+    "Independent student project" pill was cut: it duplicated the hero
+    disclaimer sitting ~100px below it in the same viewport.
+
+12. **Bounce easing kept against `impeccable`'s advice.** `impeccable detect`
+    flags `cubic-bezier(0.34, 1.56, 0.64, 1)` as dated/tacky and prefers
+    ease-out-expo. The curve was explicitly specified, so it stays. Changing it
+    means `--ease-bounce` (styles.css) **and** `BOUNCE` (app.js) — they are a
+    matched pair.
+
+    The same run reports 3 new `low-contrast` hits on index.html, all
+    `… on #ff5a36`. They are false positives: the orange elements added here
+    (`.section-rule` ×3, `.ready-rule`, the progress bar) are empty 1–2px
+    decorative spans with no text. Baseline main = 46 findings, this branch =
+    51 (+3 bounce, +3 false-positive contrast, −1 all-caps).
+
 ---
 
 ## KNOWN LIMITATIONS (mockup only)

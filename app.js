@@ -145,75 +145,111 @@
 
   var BOUNCE = "back.out(1.7)";
 
-  /* Hero headline cycling. The DOM already holds the FINAL phrase, so we stash
-     its markup (it contains the orange-T span), play the earlier phrases as
-     plain text, then put the real markup back. Runs once on load only. */
-  function buildCycleTimeline() {
-    var el = document.querySelector("[data-cycle]");
-    if (!el) return null;
-    var phrases = (el.dataset.cycle || "").split("|").filter(Boolean);
-    if (!phrases.length) return null;
+  /* ---------- The climb: off-screen pause ----------
+     The field is ten continuously-running CSS animations. Once the hero has
+     left the viewport there is nobody to see them, so stop ticking. Paused
+     rather than removed: scrolling back up resumes mid-climb instead of
+     snapping all ten words to their start, which would be exactly the visible
+     "restart" the whole design is built to avoid.
+     Deliberately outside the gsapReady branch — the climb is pure CSS and owes
+     the CDN nothing. */
+  var heroEl = document.querySelector(".hero");
+  if (heroEl && "IntersectionObserver" in window) {
+    new IntersectionObserver(function (entries) {
+      heroEl.classList.toggle("climb-idle", !entries[0].isIntersecting);
+    }).observe(heroEl);
+  }
 
-    var finalHTML = el.innerHTML;
-    // Swap in the first phrase synchronously, before the hero fades in, so the
-    // headline arrives already cycling rather than visibly changing its mind.
-    el.textContent = phrases[0];
-
-    var tl = window.gsap.timeline();
-    phrases.slice(1).concat([null]).forEach(function (next) {
-      tl.to(el, { autoAlpha: 0, y: -8, duration: 0.4, ease: "power2.in" }, "+=0.35")
-        .add(function () {
-          if (next === null) {
-            el.innerHTML = finalHTML; // restore the real headline + orange T
-          } else {
-            el.textContent = next;
-          }
-        })
-        .fromTo(
-          el,
-          { autoAlpha: 0, y: 8 },
-          { autoAlpha: 1, y: 0, duration: 0.4, ease: BOUNCE }
-        );
+  /* ---------- The climb: drift guard ----------
+     The route names are static markup so that no-JS and reduced-motion hold the
+     finished state without running anything. That buys robustness and costs a
+     second copy of the list, so shout if the copy drifts from data.js. NOTES.md
+     item 1 is explicit that a wrong route list is the one error this audience
+     will catch, and the climb is now the largest text on the site. */
+  var climbEl = document.querySelector("[data-climb]");
+  if (climbEl && typeof ROUTES !== "undefined") {
+    var inDom = Array.prototype.map.call(climbEl.children, function (li) {
+      return li.textContent.trim();
     });
-    return tl;
+    var inData = ROUTES.map(function (r) {
+      return r.route;
+    });
+    var missing = inData.filter(function (n) {
+      return inDom.indexOf(n) === -1;
+    });
+    var extra = inDom.filter(function (n) {
+      return inData.indexOf(n) === -1;
+    });
+    if (missing.length || extra.length) {
+      console.warn(
+        "[NLN] Hero climb has drifted from data.js → ROUTES. " +
+          "Fix index.html .climb-field to match.",
+        { missingFromClimb: missing, notARoute: extra }
+      );
+    }
   }
 
   if (gsapReady) {
     var gsap = window.gsap;
-    var heroIns = document.querySelectorAll("[data-hero-in]");
 
-    /* Hero load-in: staggered 200ms rise. gsap.set runs now (before first
-       paint) so nothing flashes in at full opacity first. */
-    if (heroIns.length) {
-      gsap.set(heroIns, { autoAlpha: 0, y: 24 });
-      var heroTl = gsap.timeline({ delay: 0.15 });
-      heroTl.to(heroIns, {
-        autoAlpha: 1,
-        y: 0,
-        duration: 0.7,
-        stagger: 0.2,
-        ease: BOUNCE,
+    /* ---------- H1: character cascade ----------
+       Chars rise into place, matching the climb's direction. Once, on load.
+       SplitType rather than GSAP's SplitText: SplitText is a Club plugin in
+       the 3.12.5 pinned here, and that pin is shared by all six pages (see
+       NOTES.md → DEVIATIONS 17).
+       The split spans are visual only — the accessible name is pinned to the
+       whole phrase first, so assistive tech reads a sentence and not sixteen
+       separate letters. If SplitType fails to load, the H1 is already real
+       text in the DOM and simply doesn't cascade. */
+    var h1El = document.querySelector("[data-h1]");
+    if (h1El && typeof window.SplitType !== "undefined") {
+      h1El.setAttribute(
+        "aria-label",
+        h1El.textContent.replace(/\s+/g, " ").trim()
+      );
+      var split = new window.SplitType(h1El, {
+        types: "chars",
+        tagName: "span",
       });
-      var cycleTl = buildCycleTimeline();
-      // Start cycling as the H1 itself lands, not after the whole hero.
-      if (cycleTl) heroTl.add(cycleTl, 0.55);
+      Array.prototype.forEach.call(h1El.children, function (child) {
+        child.setAttribute("aria-hidden", "true");
+      });
+      if (split.chars && split.chars.length) {
+        gsap.fromTo(
+          split.chars,
+          { yPercent: 110, autoAlpha: 0 },
+          {
+            yPercent: 0,
+            autoAlpha: 1,
+            duration: 0.7,
+            stagger: 0.026,
+            ease: "power3.out",
+            delay: 0.12,
+            // Drop the inline transforms once landed, so the resting DOM is
+            // the finished state and nothing is left mid-matrix.
+            clearProps: "transform,opacity,visibility",
+          }
+        );
+      }
     }
 
-    /* Parallax: the hero's ascending line trails the scroll, so the copy in
-       front of it reads as nearer. */
-    document.querySelectorAll("[data-parallax]").forEach(function (el) {
-      var depth = parseFloat(el.dataset.parallax) || 0.3;
-      gsap.to(el, {
-        yPercent: depth * 100,
-        ease: "none",
-        scrollTrigger: {
-          trigger: ".hero",
-          start: "top top",
-          end: "bottom top",
-          scrub: true,
-        },
-      });
-    });
+    /* Sub and CTA follow the headline up, not alongside it. */
+    var heroFollow = document.querySelectorAll(".hero-sub, .hero-cta");
+    if (heroFollow.length) {
+      gsap.fromTo(
+        heroFollow,
+        { autoAlpha: 0, y: 20 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          duration: 0.6,
+          stagger: 0.1,
+          ease: "power3.out",
+          delay: 0.62,
+          clearProps: "transform,opacity,visibility",
+        }
+      );
+    }
 
     /* Section reveals, grouped per <section> so members stagger together. The
        levels staircase and the "Who's behind" block opt out — they have their
@@ -556,41 +592,33 @@
     };
   }
 
-  /* ---------- Routes marquee (homepage only) ----------
-     Built from data.js so it can never drift from the source of truth.
-     Counts use the derived ROUTE_COUNT / PATHWAY_COUNT (data.js computes
-     PATHWAY_COUNT === 20) rather than hardcoded numbers. */
-
-  var marquee = document.querySelector("[data-marquee]");
-  if (marquee && typeof ROUTES !== "undefined") {
-    var marqueeContent = [ROUTE_COUNT + " ROUTES", PATHWAY_COUNT + " PATHWAYS"]
-      .concat(
-        ROUTES.map(function (r) {
-          return r.route.toUpperCase();
-        })
-      )
-      .join(" · ");
-
-    // Scrolling row: two identical copies so the tail of A meets the head of
-    // B. Each copy carries a trailing " · " so the seam reads continuously,
-    // and translateX(-50%) lands exactly one copy over for a jump-free loop.
-    var track = document.createElement("div");
-    track.className = "routes-marquee-track";
-    track.setAttribute("aria-hidden", "true");
-    for (var c = 0; c < 2; c++) {
-      var copy = document.createElement("span");
-      copy.className = "routes-marquee-copy";
-      copy.textContent = marqueeContent + " · ";
-      track.appendChild(copy);
-    }
-    marquee.appendChild(track);
-
-    // Static fallback shown (via CSS) under prefers-reduced-motion.
-    var stat = document.createElement("div");
-    stat.className = "routes-marquee-static";
-    stat.setAttribute("aria-hidden", "true");
-    stat.textContent = marqueeContent;
-    marquee.appendChild(stat);
+  /* ---------- Signup (homepage) ----------
+     There is no backend. The form sends nothing, so the submit state says
+     nothing was sent. The 48-hour review line is kept as the stated policy,
+     framed as what happens once this is live — printing it as a receipt would
+     be a fake success, and "peer honesty" is the entire product.
+     Native validation runs first (required + type=email), so the honest state
+     only ever appears for input that would really have been submittable. */
+  var signupForm = document.querySelector("[data-signup]");
+  var signupState = document.querySelector("[data-signup-state]");
+  if (signupForm && signupState) {
+    signupForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (!signupForm.checkValidity()) {
+        signupForm.reportValidity();
+        var firstInvalid = signupForm.querySelector(":invalid");
+        if (firstInvalid) firstInvalid.focus();
+        return;
+      }
+      // Curly apostrophes to match the rest of the site's copy, and a span
+      // rather than <em>: the second line is a quieter aside, not emphasis.
+      signupState.innerHTML =
+        "<strong>Nothing was sent.</strong> This page is a design mockup and the " +
+        "form isn&rsquo;t wired up yet, so your details didn&rsquo;t go anywhere." +
+        "<span class=\"signup-state-note\">When it&rsquo;s live: we review every " +
+        "application by hand, and you&rsquo;ll hear back within 48 hours.</span>";
+      signupState.hidden = false;
+    });
   }
 
   /* ---------- Footer year (kept as static © 2026 per copy spec) ---------- */

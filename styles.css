@@ -52,6 +52,14 @@
 /* ---------- Tokens ---------- */
 
 :root {
+  /* The site is dark-only, so tell the UA. Without this, browser-rendered
+     chrome the CSS cannot reach — the <select> dropdown popup, scrollbars,
+     form control internals — keeps painting from the LIGHT system palette on
+     a navy page. The homepage signup added a native <select> and <textarea>,
+     which is what surfaced it; apply.html's selects benefit for free.
+     See NOTES.md → DEVIATIONS 21. */
+  color-scheme: dark;
+
   --bg: #1b1e4e;            /* deep navy base — the flat canvas */
   --surface: #232659;       /* solid raised tone (photo, skip-link) */
   --card: rgba(255, 255, 255, 0.025); /* subtle card fill over navy */
@@ -577,6 +585,27 @@ main {
   transform: rotate(-1.5deg) scale(1.05);
 }
 
+/* Home only: at the top of the page the hero IS the mark, and a second
+   19px copy of the same wordmark in the corner argues with the destination
+   the whole climb is pointed at. So the nav hands off — it takes the mark
+   back the moment the climb scrolls away and .scrolled lands. Other pages
+   have no hero mark, so their nav wordmark is never touched.
+   Keyboard users get it back on focus: an invisible-but-focusable home link
+   is a trap, not a design. */
+.home .nav:not(.scrolled) .wordmark {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.home .nav:not(.scrolled) .wordmark:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.home .nav .wordmark {
+  transition: transform 300ms var(--ease-bounce), opacity 280ms var(--ease);
+}
+
 /* The orange T is the brand signature, so it's what lights up on logo hover. */
 .nav .wordmark:hover .t-accent {
   text-shadow: 0 0 12px var(--glow-accent);
@@ -752,7 +781,14 @@ main > .meta-strip:first-child {
   padding-top: calc(24px);
 }
 
-/* ---------- Hero ---------- */
+/* ---------- Hero / THE CLIMB ----------
+   Route names rise on individual paths and dissolve into the wordmark. The
+   motion is pure CSS: no JS builds it, so no-JS and reduced-motion both hold
+   the finished state, and there is no marquee track to fall out of sync.
+   Only transform and opacity animate. No `will-change` anywhere in here on
+   purpose: a running transform/opacity animation is already composited, so
+   declaring it would just pin ten permanent layers for no gain. app.js pauses
+   the whole field once the hero leaves the viewport. */
 
 .hero {
   /* Fills the screen below the fixed nav; fully visible on load (see NOTES
@@ -760,44 +796,191 @@ main > .meta-strip:first-child {
      nav doesn't push the hero bottom off-screen). */
   min-height: calc(100vh - var(--nav-h)); /* fallback first */
   min-height: calc(100svh - var(--nav-h));
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 100%;
+  grid-template-rows: 1fr auto; /* climb | copy */
   position: relative;
-  padding-bottom: 96px;
+  /* Words ride out to ±32 × --spread and the widest route name is ~350px.
+     Clipping is the intent — the field is a window, not a canvas — and it is
+     what guarantees no horizontal scrollbar at any width. */
+  overflow: hidden;
+  padding-bottom: clamp(40px, 6vh, 80px);
 }
 
-.hero .meta-strip {
-  padding-top: 24px;
+.climb {
+  /* Spans BOTH rows: the field runs the full height of the hero and the copy
+     overlays its lower third. A field bounded above the H1 had to fit ten
+     paths into ~300px, which stacked them into a word cloud instead of a
+     climb. Full height doubles the vertical spread, lets the words genuinely
+     "fade in low", and means the opaque H1 occludes anything crossing behind
+     it — which is a real depth cue rather than a drawn one.
+     The column is pinned explicitly: grid-template-columns declares the
+     EXPLICIT track only, and auto-placement will still invent an implicit
+     second column for any later item that finds row 2 already occupied. */
+  grid-row: 1 / -1;
+  grid-column: 1;
+  position: relative;
+  /* Lateral spread multiplier. Every path tightens from this one value. */
+  --spread: 1vw;
+  /* Base size the depth tiers multiply. */
+  --climb-fs: clamp(17px, 2.05vw, 29px);
+  /* Climb distance: hero floor up to the mark. Words travel --rise + 5vh,
+     overshooting into the mark, where they are already at opacity 0. */
+  --rise: clamp(420px, 66vh, 700px);
 }
 
-/* 60/40: copy holds the left column, the right stays deliberately empty so the
-   glow has somewhere to live. Mobile drops to full width (see 768 block). */
-.hero-center {
-  flex: 1;
-  /* .container's `margin: 0 auto` is a CROSS-axis auto margin inside .hero's
-     column flex, which cancels the stretch and shrink-wraps this box to its
-     content. Harmless while the hero was centred; with left-aligned copy it
-     dragged the whole column inward, off the container gutter. Pin the width
-     so the 1200px track (and the 60% below) resolve against the real one. */
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
+/* The destination. Left-aligned lines inside a centred block, so the N, L and
+   N stack into a column up the left edge — that column is the mark. It sits
+   still: no spin, no bounce. The orange T is the existing brand signature. */
+.climb-mark {
+  position: absolute;
+  z-index: 1;
+  top: clamp(8px, 3.5vh, 40px);
+  left: 50%;
+  transform: translateX(-50%);
   text-align: left;
-  gap: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(30px, 4.6vw, 66px);
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
 }
 
+.climb-mark-line {
+  display: block;
+}
+
+.climb-field {
+  position: absolute;
+  inset: 0;
+  list-style: none;
+  /* No z-index: this must NOT open a stacking context, or the front tier
+     could never paint above .climb-mark. */
+}
+
+.climb-word {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  z-index: var(--z);
+  /* Which lane value is live. 375px swaps in --x-sm where a word declares one,
+     because the desktop packing cannot simply be scaled down: three mid-tier
+     names total 416px of text against a 375px screen, so they have to be
+     re-laned, not squeezed. Words without an --x-sm fall back to --x. */
+  --x-eff: var(--x);
+  white-space: nowrap;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: calc(var(--climb-fs) * var(--s));
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  color: var(--text-primary);
+  opacity: 0;
+  animation: climb-rise var(--dur) linear var(--delay) infinite,
+    climb-lum var(--dur) linear var(--delay) infinite;
+}
+
+/* Depth. Smaller, dimmer and slower the further back a word sits — all three
+   at once, which is what stops it reading as a flat list at two opacities.
+   --peak is floored at .5: white below ~.47 over the navy drops under 4.5:1
+   (see NOTES.md → DEVIATIONS 16). */
+.t-front {
+  --s: 1;
+  --dur: 12.5s;
+  --peak: 0.95;
+  --z: 2; /* passes in FRONT of the mark — only ever at wide --x, so it
+             never covers it */
+}
+.t-mid {
+  --s: 0.8;
+  --dur: 16s;
+  --peak: 0.7;
+  --z: 0;
+}
+.t-back {
+  --s: 0.55;
+  --dur: 19.5s;
+  --peak: 0.5;
+  --z: 0; /* passes BEHIND the mark */
+}
+
+@keyframes climb-rise {
+  from {
+    transform: translate3d(calc(-50% + var(--x-eff) * var(--spread)), 0, 0);
+  }
+  to {
+    transform: translate3d(
+      calc(-50% + var(--x-eff) * var(--spread)),
+      calc((var(--rise) + 5vh) * -1),
+      0
+    );
+  }
+}
+
+/* Fade in low, brighten mid-climb, gone by the time it reaches the mark.
+   Opacity 0 at both ends is what makes the loop seamless — there is no frame
+   in which a word can be caught restarting, which is why the loop never needs
+   a duplicated track the way a marquee does.
+
+   The long, near-dark shelf up to 40% is doing real work: that stretch of the
+   climb passes behind the H1, sub and CTA, so a word crossing them is at
+   ~.06 opacity and cannot erode their contrast. Words only brighten once they
+   have climbed clear of the copy into the open field. */
+@keyframes climb-lum {
+  0% {
+    opacity: 0;
+  }
+  14% {
+    opacity: calc(var(--peak) * 0.07);
+  }
+  40% {
+    opacity: calc(var(--peak) * 0.12);
+  }
+  58% {
+    opacity: var(--peak);
+  }
+  80% {
+    opacity: calc(var(--peak) * 0.4);
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Off-screen: stop ticking. Paused rather than removed, so scrolling back up
+   resumes mid-climb instead of snapping every word to its start. */
+.hero.climb-idle .climb-word {
+  animation-play-state: paused;
+}
+
+/* z-index 3 is load-bearing, not decoration. .hero-glow is positioned with
+   z-index 0, and a NON-positioned block paints in an earlier layer than any
+   positioned one — so without this the glow rendered on top of the headline
+   and washed it pink. It also makes the copy opaque to the climb, so words
+   pass behind it. */
 .hero-copy {
-  max-width: 60%;
+  grid-row: 2;
+  grid-column: 1; /* stack under the climb, not beside it */
+  position: relative;
+  z-index: 3;
+  text-align: center;
 }
 
 .hero h1 {
-  margin-bottom: 32px;
+  margin-bottom: 20px;
+}
+
+/* SplitType char wrappers. inline-block so each one can take a transform;
+   the H1 is otherwise untouched and stays real text if SplitType never
+   arrives. Overflow stays visible: clipping the line box to hide the chars'
+   start position would guillotine the descender on "g" in "Doing". The
+   opacity ramp covers the entrance instead. */
+.hero .h1 .char {
+  display: inline-block;
 }
 
 .hero-sub {
-  max-width: 560px;
   font-size: 20px;
   line-height: 32px;
   color: var(--text-secondary);
@@ -806,13 +989,106 @@ main > .meta-strip:first-child {
 
 .hero-cta {
   display: flex;
+  justify-content: center;
 }
 
-/* The cycling headline phrase. inline-block so the load-in can transform it
-   without disturbing the second line, which never cycles. */
-.h1-cycle {
-  display: inline-block;
-  will-change: transform, opacity;
+@media (max-width: 768px) {
+  .climb {
+    /* Tighter paths: every --x contracts from this one value. */
+    --spread: 0.6vw;
+    --climb-fs: clamp(16px, 4.5vw, 22px);
+    /* Longer than the desktop proportion: the mobile mark is a larger share
+       of a shorter hero, so 60vh dissolved every word ~90px BELOW it and left
+       a dead gap under the destination. The words have to actually reach it. */
+    --rise: clamp(430px, 72vh, 580px);
+  }
+
+  /* Depth recompressed, not squeezed. A .55 back tier off a 17px base lands
+     at 9px, which is not "further away", it is unreadable. */
+  .t-mid {
+    --s: 0.84;
+  }
+  .t-back {
+    --s: 0.72;
+  }
+
+  .climb-word {
+    --x-eff: var(--x-sm, var(--x));
+  }
+
+  /* Fewer words in flight. The mark has to stay dominant on a 375px screen,
+     and ten paths across 375px is a crowd, not a depth field. */
+  .climb-thin {
+    display: none;
+  }
+
+  /* The lamp has to grow relative to the viewport, not shrink with it: at
+     92vw/-26vh the whole falloff fell off the bottom of a 375 screen and the
+     hero lost its only light source. */
+  .hero-glow {
+    bottom: -12vh;
+    width: 150vw;
+    transform: translateX(calc(-50% - 10vw));
+  }
+}
+
+/* THE RESTING STATE.
+   No motion, no JS, or both: the climb stops being a field and becomes what it
+   always was underneath — the mark, and the routes, legible. Nothing is hidden
+   and nothing is faked; the same ten <li>s simply stop moving and lay out in
+   flow. This is why the words are static markup rather than JS-generated.
+   Colour steps to --text-secondary because the animated --peak values only
+   have to hold contrast at their peak, whereas this state is read at rest. */
+@media (prefers-reduced-motion: reduce) {
+  .climb {
+    /* Back to row 1 only. Spanning both rows is what lets moving words pass
+       behind the copy; standing still, that same span just parks the route
+       list on top of the H1. */
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(24px, 4.5vh, 52px);
+    padding: clamp(20px, 4vh, 48px) var(--pad-x) clamp(16px, 3vh, 32px);
+  }
+
+  .climb-mark {
+    position: static;
+    transform: none;
+  }
+
+  .climb-field {
+    position: static;
+    height: auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px 20px;
+    max-width: 720px;
+  }
+
+  .climb-word {
+    position: static;
+    animation: none;
+    opacity: 1;
+    transform: none;
+    /* Floor, not a scale. .62 x the 375px base is 10px — the depth ratio is
+       meaningless once nothing is moving, and this state is the one that gets
+       actually READ. --text-secondary measures 9.5:1 on the navy. */
+    font-size: max(15px, calc(var(--climb-fs) * 0.62));
+    color: var(--text-secondary);
+  }
+
+  /* The 375px cull is a motion decision. At rest there is nothing to thin
+     out, so every route comes back. */
+  .climb-thin {
+    display: block;
+  }
+
+  .hero-glow {
+    opacity: 0.6;
+  }
 }
 
 /* Key-phrase highlight: "a faint orange tint", carried by the text itself.
@@ -823,52 +1099,6 @@ main > .meta-strip:first-child {
    gives the same presence and survives the dark canvas. */
 .hl {
   color: #ffd9cd;
-}
-
-.hero-bottom {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 24px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  text-align: center;
-  padding-inline: var(--pad-x);
-}
-
-.hero-disclaimer {
-  /* System tag tucked into the hero's bottom-left corner, not centred filler.
-     Positions against .hero (position: relative). The centred ▽ indicator
-     lives in .hero-bottom and is untouched. */
-  position: absolute;
-  bottom: 24px;
-  left: 48px;
-  text-align: left;
-  font-family: var(--font-mono);
-  font-weight: 500;
-  font-size: 12px;
-  line-height: 20px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-tertiary);
-}
-
-.scroll-indicator {
-  font-size: 14px;
-  color: var(--text-secondary);
-  animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 0.4;
-  }
-  50% {
-    opacity: 1;
-  }
 }
 
 /* ---------- Trust pills ----------
@@ -1034,7 +1264,7 @@ main > .meta-strip:first-child {
   }
 
   .ready-body {
-    grid-column: 1;
+    
     padding-left: 20px;
   }
 
@@ -1096,9 +1326,12 @@ main > .meta-strip:first-child {
 /* Asymmetric 1fr 2fr 1fr: identity left, navigation given the wide centre-right
    track, connect right. Lives in the shared stylesheet on purpose, so every
    page's footer moves together rather than the homepage drifting alone. */
+/* Four columns since the Legal column landed. The old 1fr 2fr 1fr silently
+   wrapped it onto a second row, because a grid with three declared tracks just
+   makes another row for the fourth child. */
 .footer-grid {
   display: grid;
-  grid-template-columns: 1fr 2fr 1fr;
+  grid-template-columns: 1.7fr 1fr 1fr 1fr;
   gap: 48px;
   margin-bottom: 64px;
 }
@@ -1261,6 +1494,101 @@ main > .meta-strip:first-child {
   color: var(--text-secondary);
 }
 
+/* ---------- About (homepage) ----------
+   NOT .about-section: that class already belongs to about.html, where it means
+   "max-width: 640px prose column". Reusing the name silently squeezed this
+   whole section to 640px. Named .home-about so the two can't collide.
+   The base .about-founder rule is about.html's (centred, 560px) and must keep
+   rendering that page exactly as it does today, hence the scoped overrides. */
+
+.about-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: 64px;
+  align-items: start;
+  margin-top: 40px;
+}
+
+.home-about .about-founder {
+  max-width: none;
+  margin-inline: 0;
+  text-align: left;
+  border-left: 1px solid var(--divider);
+  padding-left: 32px;
+}
+
+/* The bio is a placeholder and is dressed as one. A bracketed paragraph set
+   in the same tone as real copy invites someone to ship it by accident. */
+.home-about .founder-bio {
+  font-style: italic;
+  opacity: 0.85;
+}
+
+@media (max-width: 768px) {
+  .about-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .home-about .about-founder {
+    border-left: 0;
+    border-top: 1px solid var(--divider);
+    padding-left: 0;
+    padding-top: 32px;
+  }
+}
+
+/* ---------- Trust ---------- */
+
+.trust-section .trust-pills {
+  margin-top: 28px;
+}
+
+/* ---------- Legal scaffolding ----------
+   These pages exist so the footer isn't lying about having them, and they are
+   dressed to make shipping them by accident hard. The bracketed notes are set
+   in mono at tertiary weight so they never read as prose someone approved. */
+
+.legal-todo {
+  max-width: 68ch;
+  margin-top: 40px;
+}
+
+.legal-warning {
+  border-left: 2px solid var(--accent);
+  padding: 4px 0 4px 20px;
+  margin-bottom: 48px;
+  color: var(--text-primary);
+}
+
+.legal-h {
+  margin-top: 40px;
+  margin-bottom: 12px;
+  font-size: 22px;
+  line-height: 30px;
+}
+
+.legal-todo p {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 24px;
+  color: var(--text-tertiary);
+}
+
+/* The warning is the one paragraph here that IS real copy, so it reads as copy. */
+.legal-todo .legal-warning {
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 28px;
+  color: var(--text-primary);
+}
+
+.legal-updated {
+  margin-top: 56px;
+  padding-top: 24px;
+  border-top: 1px solid var(--divider);
+}
+
 .legal p {
   color: var(--text-secondary);
 }
@@ -1333,6 +1661,76 @@ main > .meta-strip:first-child {
 .field select:disabled {
   color: var(--text-tertiary);
   opacity: 1;
+}
+
+/* Textarea joins the existing field system rather than starting a new one:
+   same fill, border, radius and focus ring as input/select. */
+.field textarea {
+  width: 100%;
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 28px;
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 8px;
+  padding: 16px 20px;
+  resize: vertical;
+  min-height: 120px;
+  transition: border-color 150ms ease-out, box-shadow 150ms ease-out;
+}
+
+.field textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(255, 90, 54, 0.25);
+}
+
+/* Persistent helper text, not placeholder-only: the hint has to survive the
+   field being filled in. */
+.field-help {
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--text-secondary);
+}
+
+/* ---------- Signup ---------- */
+
+.signup-intro {
+  max-width: 56ch;
+  margin-top: 20px;
+  margin-bottom: 48px;
+}
+
+.signup-form {
+  max-width: 720px;
+}
+
+.signup-form .btn {
+  margin-top: 8px;
+}
+
+/* The submit state. Orange rule rather than a green success panel: nothing
+   succeeded, because nothing was sent. */
+.signup-state {
+  max-width: 720px;
+  margin-top: 32px;
+  padding-left: 20px;
+  border-left: 2px solid var(--accent);
+  font-size: 17px;
+  line-height: 28px;
+  color: var(--text-primary);
+}
+
+.signup-state[hidden] {
+  display: none;
+}
+
+.signup-state-note {
+  display: block;
+  margin-top: 8px;
+  color: var(--text-secondary);
 }
 
 .field-pair {
@@ -1473,23 +1871,33 @@ main > .meta-strip:first-child {
    VISUAL UPGRADE — gradient accents, line icons, cards
    ============================================================ */
 
-/* Hero: one faint radial wash behind the headline — depth on the flat navy */
-/* Glow sits low and to the RIGHT, opposite the left-offset copy — the two
-   masses pull against each other instead of stacking. The ascending hero line
-   climbs out of the copy and into the glow, which is why the line keeps its
-   brand gradient (see --brand-gradient) while everything new stays flat. */
-.hero {
-  background:
-    radial-gradient(
-      ellipse 48% 42% at 78% 74%,
-      var(--glow-purple) 0%,
-      transparent 68%
-    ),
-    radial-gradient(
-      ellipse 26% 22% at 71% 88%,
-      var(--glow-accent-soft) 0%,
-      transparent 72%
-    );
+/* ONE light source, low and left of the mark's axis.
+   Replaces the old pair of ellipses (a purple wash plus a separate orange
+   one), which read as two lamps in one room. A hot orange core bleeds out
+   through purple to nothing: the words climb OUT of the warm light and up
+   into the dark, which is the whole point of the section. It resolves to
+   transparent well inside the viewport, so it stays a light source rather
+   than a background wash — and it is a radial, not the blue→purple linear
+   this palette is under standing orders to avoid. */
+.hero-glow {
+  position: absolute;
+  z-index: 0;
+  left: 50%;
+  bottom: -26vh;
+  width: min(880px, 92vw);
+  aspect-ratio: 1.35 / 1;
+  transform: translateX(calc(-50% - 15vw));
+  pointer-events: none;
+  /* Falloff is tuned so the lamp is spent by ~72% of its own radius: past
+     that it is flat navy, which is what keeps it a light SOURCE and not a
+     wash across the whole hero. */
+  background: radial-gradient(
+    closest-side,
+    rgba(255, 90, 54, 0.3) 0%,
+    rgba(150, 62, 98, 0.22) 30%,
+    rgba(75, 46, 126, 0.34) 52%,
+    transparent 72%
+  );
 }
 
 /* A small gradient tick before mono section headings */
@@ -1702,91 +2110,11 @@ main > .meta-strip:first-child {
    "ASCEND" CONCEPT — hero level-line + levels staircase
    ============================================================ */
 
-/* Hero content stays above the ascending line */
-.hero .meta-strip,
-.hero-center {
-  position: relative;
-  z-index: 1;
-}
-
-.hero-bottom,
-.hero-disclaimer {
-  z-index: 1;
-}
-
 /* The ascending staircase line. Now that the copy holds the left 60%, the line
    moves into the empty right column and climbs toward the glow instead of
    scratching across the body text, which is where a full-bleed line landed
    once the hero stopped being centred. */
-.hero-line {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  left: auto;
-  width: 52%;
-  height: 100%;
-  z-index: 0;
-  opacity: 0.5;
-  pointer-events: none;
-}
-
-/* Mobile: copy goes full width, so the line returns to full bleed behind it
-   at a lower opacity rather than crowding into a 52% column. */
-@media (max-width: 768px) {
-  .hero-line {
-    left: 0;
-    width: 100%;
-    opacity: 0.32;
-  }
-}
-
-.hero-line-path {
-  /* geometric path length ≈ 990; 1000 covers it as a single dash so the line
-     draws solidly (pathLength normalisation isn't reliable for CSS dashes) */
-  stroke-dasharray: 1000;
-  stroke-dashoffset: 1000;
-  animation: ascend-draw 1.2s ease-out 0.15s forwards;
-}
-
-@keyframes ascend-draw {
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
-.hero-line-nodes circle {
-  opacity: 0;
-  animation: ascend-node 0.4s ease-out forwards;
-}
-.hero-line-nodes circle:nth-of-type(1) {
-  animation-delay: 0.6s;
-}
-.hero-line-nodes circle:nth-of-type(2) {
-  animation-delay: 0.85s;
-}
-.hero-line-nodes circle:nth-of-type(3) {
-  animation-delay: 1.1s;
-}
-
-@keyframes ascend-node {
-  to {
-    opacity: 1;
-  }
-}
-
 /* "You are here" tag above the headline — plants the climb metaphor */
-.level-tag {
-  font-family: var(--font-mono);
-  font-weight: 500;
-  font-size: 12px;
-  line-height: 20px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--text-secondary);
-  margin-bottom: 20px;
-}
-
 /* ---------- Levels staircase ("How it works") ---------- */
 .levels-wrap {
   position: relative;
@@ -1882,18 +2210,6 @@ main > .meta-strip:first-child {
   color: var(--text-secondary);
 }
 
-/* Reduced motion: line fully drawn, nodes shown, no drawing animation */
-@media (prefers-reduced-motion: reduce) {
-  .hero-line-path {
-    animation: none;
-    stroke-dashoffset: 0;
-  }
-  .hero-line-nodes circle {
-    animation: none;
-    opacity: 1;
-  }
-}
-
 /* Mobile: staircase collapses to a clean vertical stack with a left line */
 @media (max-width: 768px) {
   .levels-wrap {
@@ -1950,9 +2266,6 @@ main > .meta-strip:first-child {
     opacity: 1;
     transform: none;
   }
-  .scroll-indicator {
-    animation: none;
-  }
 }
 
 /* ============================================================
@@ -1982,13 +2295,16 @@ main > .meta-strip:first-child {
     line-height: 52px;
   }
 
-  /* Hero H1 stays two clean lines from 375px up: the longer phrase
-     ("You're not on your own.") is 456px at 44px but only ~327px fits at
-     375, so scale fluidly up toward 44px by the 768 breakpoint. See NOTES
-     DEVIATIONS. */
+  /* Hero H1 stays ONE clean line from 375px up. The clamp survives from the
+     previous hero but its arithmetic has moved: "You're not on your own." is
+     now the sub, so the H1 only has to fit "Doing a T Level?" (~292px at
+     36px) inside the ~327px available at 375. That bought back the floor —
+     28px was sized for a phrase this H1 no longer carries, and shrinking a
+     16-character headline to 28px is the illegibility the brief bans.
+     See NOTES DEVIATIONS 3. */
   .hero .h1 {
-    font-size: clamp(28px, 7.8vw, 44px);
-    line-height: 1.12;
+    font-size: clamp(34px, 9.4vw, 44px);
+    line-height: 1.1;
   }
 
   .h2 {
@@ -2004,10 +2320,6 @@ main > .meta-strip:first-child {
   .hero-sub {
     font-size: 17px;
     line-height: 26px;
-  }
-
-  .hero-disclaimer {
-    left: 24px;
   }
 
   .body {

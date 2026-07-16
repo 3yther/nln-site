@@ -7,9 +7,12 @@
   <meta name="description" content="The T Level community for students across the UK — placement help, honest advice, and other people doing your route.">
   <meta name="theme-color" content="#000000">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23000000'/%3E%3Ctext x='16' y='23' font-family='monospace' font-size='20' font-weight='700' fill='%23ffffff' text-anchor='middle'%3EN%3C/text%3E%3C/svg%3E">
+  <!-- Four scripts come off this origin; open the connection during head parse
+       rather than paying the DNS + TLS handshake when the first one is hit. -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="home">
   <a class="skip-link" href="#main">Skip to content</a>
 
   <!-- Scroll progress: width driven by app.js, or by ScrollTrigger when GSAP
@@ -48,60 +51,144 @@
 
   <main id="main">
 
+    <!-- ============================================================
+         THE CLIMB — the one orchestrated moment on the site.
+
+         Destination: the existing wordmark, stacked so the N-L-N initials
+         column up its left edge. The orange T stays the committed brand
+         signature (styles.css → .t-accent). No new logo was invented; there
+         is no logo asset in this repo. See NOTES.md → DEVIATIONS 15.
+
+         The route names are STATIC markup on purpose. No-JS, reduced-motion
+         and assistive tech all receive the finished state without running a
+         line of JS, and the motion is pure CSS (transform + opacity only).
+         data.js → ROUTES remains the source of truth; app.js warns on drift.
+
+         Depth lives in the tier CLASS (t-front / t-mid / t-back), not inline,
+         so the 375px block can recompress it. Inline carries only per-word data:
+           --x     lateral offset, UNITLESS. Multiplied by .climb's --spread, so
+                   375px tightens every path from one place. Long route names
+                   ride near centre and pass behind the mark; short names fly
+                   wide. This is what keeps them off each other.
+           --dur   per-word, and deliberately never a round number. Equal
+                   durations inside a tier would march in lockstep and read as
+                   a pattern. The tier sets a base; these override it.
+           --delay NEGATIVE, so every word is already mid-climb on load and the
+                   loop has no visible start.
+         ============================================================ -->
     <section class="hero">
-      <svg class="hero-line" viewBox="0 0 900 360" fill="none" preserveAspectRatio="xMidYMid meet" aria-hidden="true" data-parallax="0.35">
-        <defs>
-          <linearGradient id="ascendGrad" x1="0" y1="1" x2="1" y2="0">
-            <stop offset="0" stop-color="#2b3a8c"/>
-            <stop offset="0.55" stop-color="#4b2e7e"/>
-            <stop offset="1" stop-color="#6b1f63"/>
-          </linearGradient>
-        </defs>
-        <path class="hero-line-path" d="M60 300 H260 V230 H460 V160 H660 V90 H840"
-          stroke="url(#ascendGrad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-          vector-effect="non-scaling-stroke"/>
-        <g class="hero-line-nodes">
-          <circle cx="260" cy="230" r="4" fill="#4b2e7e"/>
-          <circle cx="460" cy="160" r="4" fill="#5a2870"/>
-          <circle cx="660" cy="90" r="4" fill="#6b1f63"/>
-        </g>
-      </svg>
-      <div class="meta-strip">
-        <div class="container">
-          <p class="mono-strip" data-strip>NLN · Independent · For people doing T Levels</p>
-        </div>
+      <!-- One light source. Low, off-centre, purple bleeding to orange. -->
+      <span class="hero-glow" aria-hidden="true"></span>
+
+      <div class="climb">
+        <p class="climb-mark">
+          <span class="climb-mark-line">NEX<span class="t-accent">T</span></span>
+          <span class="climb-mark-line">LEVEL</span>
+          <span class="climb-mark-line">NETWORK</span>
+        </p>
+
+        <!-- LANES. --x is not decorative scatter; it is packed so that no two
+             words of the SAME tier can ever overlap horizontally. Same-tier
+             crossings are the failure mode: two 18px words at .5 opacity
+             passing through each other mush into an illegible smear that
+             reads as a rendering bug. Cross-tier crossings are fine and in
+             fact wanted — a 29px word at .95 passing a 18px word at .5 is
+             occlusion, which is the depth doing its job.
+             Durations differ within a tier, so phases drift and any two words
+             WILL align vertically sooner or later. Lanes are what make that
+             harmless instead of a matter of luck. -->
+        <ul class="climb-field" data-climb aria-label="T Level routes in the community">
+          <li class="climb-word t-front" style="--x:-42; --x-sm:-62; --dur:12.5s; --delay:-2.4s">Digital</li>
+          <li class="climb-word t-front" style="--x: 36; --x-sm: 53; --dur:13.5s; --delay:-9.2s">Construction</li>
+          <li class="climb-word t-mid"   style="--x:-27; --x-sm:-50; --dur:15.5s; --delay:-5.1s">Health &amp; Science</li>
+          <li class="climb-word t-mid"   style="--x: -4; --x-sm: 29; --dur:17s;   --delay:-15.3s">Education &amp; Early Years</li>
+          <li class="climb-word t-back"  style="--x:-39; --x-sm:-17; --dur:19s;   --delay:-10.6s">Engineering &amp; Manufacturing</li>
+          <!-- These five stand down at 375px. Not a squeeze: the ten desktop
+               lanes total ~2100px of text, and no re-laning fits that into
+               375 without same-tier words smearing through each other. So the
+               climb thins to five — "fewer words in flight" — keeping all
+               three depth tiers and the largest routes by cohort. The climb
+               is atmosphere and never claims to be the list; t-levels.html is
+               the canonical one. See NOTES.md → DEVIATIONS 18. -->
+          <li class="climb-word t-mid  climb-thin" style="--x: 23; --dur:16.5s; --delay:-12.8s">Creative &amp; Design</li>
+          <li class="climb-word t-back climb-thin" style="--x: -2; --dur:18.5s; --delay:-3.9s">Business &amp; Administration</li>
+          <li class="climb-word t-back climb-thin" style="--x: 41; --dur:20s;   --delay:-17.2s">Legal, Finance &amp; Accounting</li>
+          <li class="climb-word t-back climb-thin" style="--x:-20; --dur:19.5s; --delay:-6.8s">Sales, Marketing &amp; Procurement</li>
+          <li class="climb-word t-back climb-thin" style="--x: 20; --dur:20s;   --delay:-14.1s">Agriculture, Environmental &amp; Animal Care</li>
+        </ul>
       </div>
-      <div class="container hero-center">
-        <div class="hero-copy">
-          <p class="level-tag" data-hero-in>Level <span class="t-accent">01</span> — You are here</p>
-          <!-- The resting DOM text is the FINAL phrase, so no-JS, reduced-motion
-               and assistive tech all get the real headline. app.js cycles the
-               earlier phrases in data-cycle purely as a load-in flourish. -->
-          <h1 class="h1" data-hero-in>
-            <span class="h1-cycle" data-cycle="Starting fresh?|Finding your path?">Doing a <span class="t-accent">T</span>&nbsp;Level?</span><br>You&rsquo;re not on your own.
-          </h1>
-          <p class="hero-sub" data-hero-in>
-            The <span class="hl">T&nbsp;Level community for students</span> across the UK. Placement help, honest
-            advice, and other people doing your route — from Digital to Construction to
-            Health&nbsp;&amp; Science.
-          </p>
-          <div class="hero-cta" data-hero-in>
-            <a class="btn btn-primary" href="apply.html">Apply to join →</a>
+
+      <div class="container hero-copy">
+        <h1 class="h1" data-h1>Doing a <span class="t-accent">T</span>&nbsp;Level?</h1>
+        <p class="hero-sub">You&rsquo;re not on your own.</p>
+        <p class="hero-cta"><a class="btn btn-primary" href="#signup">Apply to join →</a></p>
+      </div>
+    </section>
+
+    <div class="container"><span class="section-rule" data-rule aria-hidden="true"></span></div>
+
+    <!-- SIGNUP. Mockup only: there is no backend and this form sends nothing.
+         The submit state says so. The brief's line ("we review every
+         application by hand, you'll hear back within 48 hours") is kept as the
+         stated policy, but it is framed as what happens once this is live —
+         printing it as a receipt would be faking a success that did not
+         happen, which the brief bans and which this audience would clock
+         immediately. See NOTES.md → DEVIATIONS 19. -->
+    <section class="section signup-section" id="signup">
+      <div class="container">
+        <h2 class="h2 reveal">Ask to join</h2>
+        <p class="signup-intro body text-secondary reveal">
+          Everyone here is doing a T&nbsp;Level, has done one, or is about to start.
+          That is the only bar. Tell us who you are.
+        </p>
+
+        <form class="signup-form reveal" data-signup>
+          <div class="field-pair">
+            <div class="field">
+              <label class="mono-label" for="su-name">Name</label>
+              <input type="text" id="su-name" name="name" autocomplete="name" required>
+            </div>
+            <div class="field">
+              <label class="mono-label" for="su-email">Email</label>
+              <input type="email" id="su-email" name="email" autocomplete="email" required>
+            </div>
           </div>
-          <!-- Trust pills are the old button note ("Manually reviewed · Usually
-               within 48 hours") split in two. No new claims. Deliberately only
-               two: an "Independent student project" pill duplicated the
-               disclaimer sitting ~100px below it in the same viewport. -->
-          <ul class="trust-pills" data-hero-in>
-            <li class="trust-pill">Manually reviewed</li>
-            <li class="trust-pill">Usually within 48 hours</li>
-          </ul>
-        </div>
+
+          <div class="field-pair">
+            <div class="field">
+              <label class="mono-label" for="su-whatsapp">WhatsApp number</label>
+              <input type="tel" id="su-whatsapp" name="whatsapp" autocomplete="tel"
+                inputmode="tel" required>
+              <p class="field-help" id="su-whatsapp-help">The community runs on WhatsApp. This is how you get added.</p>
+            </div>
+            <div class="field">
+              <label class="mono-label" for="su-heard">How you heard</label>
+              <select id="su-heard" name="heard" required>
+                <option value="" selected disabled>Pick one</option>
+                <option>TikTok</option>
+                <option>Instagram</option>
+                <option>Someone told me</option>
+                <option>My college</option>
+                <option>Search</option>
+                <option>Somewhere else</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="mono-label" for="su-why">Why you want in</label>
+            <textarea id="su-why" name="why" rows="4" required
+              aria-describedby="su-why-help"></textarea>
+            <p class="field-help" id="su-why-help">A couple of lines is plenty. Say it how you'd say it.</p>
+          </div>
+
+          <button class="btn btn-primary" type="submit">Ask to join →</button>
+        </form>
+
+        <!-- Populated by app.js on submit. role=status announces it without
+             stealing focus. Empty and hidden in the resting DOM. -->
+        <p class="signup-state" data-signup-state role="status" hidden></p>
       </div>
-      <div class="hero-bottom">
-        <span class="scroll-indicator" aria-hidden="true">▽</span>
-      </div>
-      <p class="hero-disclaimer">Independent student project · Not affiliated with the DfE or IfATE</p>
     </section>
 
     <div class="container"><span class="section-rule" data-rule aria-hidden="true"></span></div>
@@ -150,17 +237,59 @@
 
     <div class="container"><span class="section-rule" data-rule aria-hidden="true"></span></div>
 
-    <section class="section">
+    <!-- ABOUT. Name and role are NOT placeholders: about.html already ships
+         "Eliud Awuah / Founder / T Level Digital · Year 12", so bracketing
+         them here would regress a real, live detail into a fake one. The bio,
+         college and photo ARE placeholders and stay marked exactly as
+         about.html marks them. Nothing here invents a founder story.
+         See NOTES.md → REPLACE BEFORE LAUNCH 2, and DEVIATIONS 20. -->
+    <section class="section home-about">
       <div class="container">
-        <h2 class="section-heading reveal">Who&rsquo;s behind NLN</h2>
-        <div class="prose-narrow reveal" data-behind>
-          <p class="body">
-            NLN is an independent student project, run by <span class="hl">Eliud Awuah</span>, a T&nbsp;Level
-            Digital student. Started in 2026 because there wasn&rsquo;t a proper place for
-            T&nbsp;Level students to actually talk to each other across the country.
-          </p>
-          <p style="margin-top: 24px;"><a class="link" href="about.html">Read more about us →</a></p>
+        <h2 class="h2 reveal">Who NLN is</h2>
+        <div class="about-grid">
+          <div class="prose-narrow reveal" data-behind>
+            <p class="body">
+              NLN is an independent student project. It exists because there wasn&rsquo;t a
+              proper place for T&nbsp;Level students to talk to each other across the
+              country. Not a college forum. Not a careers portal. Somewhere you can ask
+              what a placement is actually like, from someone who did that exact one.
+            </p>
+            <p class="body" style="margin-top: 24px;">
+              We&rsquo;re not the DfE, and we&rsquo;re not IfATE. Nobody here is trying to
+              sell you a course. It&rsquo;s students on the same routes, comparing notes.
+            </p>
+            <p style="margin-top: 24px;"><a class="link" href="about.html">Read more about us →</a></p>
+          </div>
+
+          <div class="about-founder reveal">
+            <p class="founder-name">Eliud Awuah</p>
+            <p class="founder-role mono-label">Founder</p>
+            <p class="founder-meta mono-label">T Level Digital · Year 12 · [college — TBC]</p>
+            <p class="founder-bio body text-secondary">
+              [Bio — one short paragraph in Eliud&rsquo;s own words about why he started
+              NLN. Replace before launch. Do not write this for him.]
+            </p>
+          </div>
         </div>
+      </div>
+    </section>
+
+    <div class="container"><span class="section-rule" data-rule aria-hidden="true"></span></div>
+
+    <!-- TRUST. Every line here already exists elsewhere on the site: the two
+         pills are the old hero button note split in two, and the third line is
+         the old hero disclaimer, which moved here when the hero was cut back to
+         climb + H1 + sub + CTA. No new claim is made, so nothing here needs
+         verifying before launch. -->
+    <section class="section trust-section">
+      <div class="container">
+        <h2 class="section-heading reveal">Straight up</h2>
+        <ul class="trust-pills reveal">
+          <li class="trust-pill">Manually reviewed</li>
+          <li class="trust-pill">Usually within 48 hours</li>
+          <li class="trust-pill">Independent</li>
+          <li class="trust-pill">Not affiliated with the DfE or IfATE</li>
+        </ul>
       </div>
     </section>
 
@@ -184,8 +313,6 @@
 
   </main>
 
-  <div class="routes-marquee" aria-label="T Level routes covered by NLN" data-marquee></div>
-
   <footer class="footer">
     <div class="container">
       <div class="footer-grid">
@@ -208,7 +335,16 @@
           <ul>
             <li><a href="#">Instagram</a></li>
             <li><a href="#">TikTok</a></li>
-            <li><a href="#">Email us</a></li>
+            <!-- PLACEHOLDER — real address needed before launch.
+                 See NOTES.md → REPLACE BEFORE LAUNCH 3. -->
+            <li><a href="#">[hello@ · TBC]</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h3 class="mono-label">Legal</h3>
+          <ul>
+            <li><a href="terms.html">Terms of Service</a></li>
+            <li><a href="privacy.html">Privacy Policy</a></li>
           </ul>
         </div>
       </div>
@@ -218,10 +354,16 @@
 
   <!-- Scroll libraries (CDN, progressive enhancement — see app.js).
        If any fail to load, the site falls back to native scroll + the
-       one-time IntersectionObserver reveal. -->
+       one-time IntersectionObserver reveal. The climb needs none of them:
+       it is pure CSS and runs with every script here blocked.
+       SplitType, not GSAP SplitText — SplitText is a Club plugin in the
+       3.12.5 pinned above, and that pin is shared by all six pages, so
+       bumping it to reach the free 3.13 build would mean editing five pages
+       this branch is not allowed to touch. See NOTES.md → DEVIATIONS 17. -->
   <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/split-type@0.3.4/umd/index.min.js"></script>
   <script src="data.js"></script>
   <script src="app.js"></script>
 </body>

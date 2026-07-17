@@ -121,7 +121,73 @@
       <div class="container hero-copy">
         <h1 class="h1" data-h1>Doing a <span class="t-accent">T</span>&nbsp;Level?</h1>
         <p class="hero-sub">You&rsquo;re not on your own.</p>
-        <p class="hero-cta"><a class="btn btn-primary" href="apply.html">Apply to join →</a></p>
+        <p class="hero-cta"><a class="btn btn-primary" href="#signup">Apply to join →</a></p>
+      </div>
+    </section>
+
+    <div class="container"><span class="section-rule" data-rule aria-hidden="true"></span></div>
+
+    <!-- SIGNUP. Mockup only: there is no backend and this form sends nothing.
+         The submit state says so. The brief's line ("we review every
+         application by hand, you'll hear back within 48 hours") is kept as the
+         stated policy, but it is framed as what happens once this is live —
+         printing it as a receipt would be faking a success that did not
+         happen, which the brief bans and which this audience would clock
+         immediately. See NOTES.md → DEVIATIONS 19. -->
+    <section class="section signup-section" id="signup">
+      <div class="container">
+        <h2 class="h2 reveal">Ask to join</h2>
+        <p class="signup-intro body text-secondary reveal">
+          Everyone here is doing a T&nbsp;Level, has done one, or is about to start.
+          That is the only bar. Tell us who you are.
+        </p>
+
+        <form class="signup-form reveal" data-signup>
+          <div class="field-pair">
+            <div class="field">
+              <label class="mono-label" for="su-name">Name</label>
+              <input type="text" id="su-name" name="name" autocomplete="name" required>
+            </div>
+            <div class="field">
+              <label class="mono-label" for="su-email">Email</label>
+              <input type="email" id="su-email" name="email" autocomplete="email" required>
+            </div>
+          </div>
+
+          <div class="field-pair">
+            <div class="field">
+              <label class="mono-label" for="su-whatsapp">WhatsApp number</label>
+              <input type="tel" id="su-whatsapp" name="whatsapp" autocomplete="tel"
+                inputmode="tel" required>
+              <p class="field-help" id="su-whatsapp-help">The community runs on WhatsApp. This is how you get added.</p>
+            </div>
+            <div class="field">
+              <label class="mono-label" for="su-heard">How you heard</label>
+              <select id="su-heard" name="heard" required>
+                <option value="" selected disabled>Pick one</option>
+                <option>TikTok</option>
+                <option>Instagram</option>
+                <option>Someone told me</option>
+                <option>My college</option>
+                <option>Search</option>
+                <option>Somewhere else</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="mono-label" for="su-why">Why you want in</label>
+            <textarea id="su-why" name="why" rows="4" required
+              aria-describedby="su-why-help"></textarea>
+            <p class="field-help" id="su-why-help">A couple of lines is plenty. Say it how you'd say it.</p>
+          </div>
+
+          <button class="btn btn-primary" type="submit">Ask to join →</button>
+        </form>
+
+        <!-- Populated by app.js on submit. role=status announces it without
+             stealing focus. Empty and hidden in the resting DOM. -->
+        <p class="signup-state" data-signup-state role="status" hidden></p>
       </div>
     </section>
 
@@ -272,6 +338,13 @@
             <!-- PLACEHOLDER — real address needed before launch.
                  See NOTES.md → REPLACE BEFORE LAUNCH 3. -->
             <li><a href="#">[hello@ · TBC]</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h3 class="mono-label">Legal</h3>
+          <ul>
+            <li><a href="terms.html">Terms of Service</a></li>
+            <li><a href="privacy.html">Privacy Policy</a></li>
           </ul>
         </div>
       </div>

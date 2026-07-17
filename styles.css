@@ -55,7 +55,8 @@
   /* The site is dark-only, so tell the UA. Without this, browser-rendered
      chrome the CSS cannot reach — the <select> dropdown popup, scrollbars,
      form control internals — keeps painting from the LIGHT system palette on
-     a navy page. apply.html's route/pathway selects are the ones that need it.
+     a navy page. The homepage signup added a native <select> and <textarea>,
+     which is what surfaced it; apply.html's selects benefit for free.
      See NOTES.md → DEVIATIONS 21. */
   color-scheme: dark;
 
@@ -1325,9 +1326,12 @@ main > .meta-strip:first-child {
 /* Asymmetric 1fr 2fr 1fr: identity left, navigation given the wide centre-right
    track, connect right. Lives in the shared stylesheet on purpose, so every
    page's footer moves together rather than the homepage drifting alone. */
+/* Four columns since the Legal column landed. The old 1fr 2fr 1fr silently
+   wrapped it onto a second row, because a grid with three declared tracks just
+   makes another row for the fourth child. */
 .footer-grid {
   display: grid;
-  grid-template-columns: 1fr 2fr 1fr;
+  grid-template-columns: 1.7fr 1fr 1fr 1fr;
   gap: 48px;
   margin-bottom: 64px;
 }
@@ -1540,6 +1544,51 @@ main > .meta-strip:first-child {
   margin-top: 28px;
 }
 
+/* ---------- Legal scaffolding ----------
+   These pages exist so the footer isn't lying about having them, and they are
+   dressed to make shipping them by accident hard. The bracketed notes are set
+   in mono at tertiary weight so they never read as prose someone approved. */
+
+.legal-todo {
+  max-width: 68ch;
+  margin-top: 40px;
+}
+
+.legal-warning {
+  border-left: 2px solid var(--accent);
+  padding: 4px 0 4px 20px;
+  margin-bottom: 48px;
+  color: var(--text-primary);
+}
+
+.legal-h {
+  margin-top: 40px;
+  margin-bottom: 12px;
+  font-size: 22px;
+  line-height: 30px;
+}
+
+.legal-todo p {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 24px;
+  color: var(--text-tertiary);
+}
+
+/* The warning is the one paragraph here that IS real copy, so it reads as copy. */
+.legal-todo .legal-warning {
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 28px;
+  color: var(--text-primary);
+}
+
+.legal-updated {
+  margin-top: 56px;
+  padding-top: 24px;
+  border-top: 1px solid var(--divider);
+}
+
 .legal p {
   color: var(--text-secondary);
 }
@@ -1612,6 +1661,76 @@ main > .meta-strip:first-child {
 .field select:disabled {
   color: var(--text-tertiary);
   opacity: 1;
+}
+
+/* Textarea joins the existing field system rather than starting a new one:
+   same fill, border, radius and focus ring as input/select. */
+.field textarea {
+  width: 100%;
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 28px;
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 8px;
+  padding: 16px 20px;
+  resize: vertical;
+  min-height: 120px;
+  transition: border-color 150ms ease-out, box-shadow 150ms ease-out;
+}
+
+.field textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(255, 90, 54, 0.25);
+}
+
+/* Persistent helper text, not placeholder-only: the hint has to survive the
+   field being filled in. */
+.field-help {
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--text-secondary);
+}
+
+/* ---------- Signup ---------- */
+
+.signup-intro {
+  max-width: 56ch;
+  margin-top: 20px;
+  margin-bottom: 48px;
+}
+
+.signup-form {
+  max-width: 720px;
+}
+
+.signup-form .btn {
+  margin-top: 8px;
+}
+
+/* The submit state. Orange rule rather than a green success panel: nothing
+   succeeded, because nothing was sent. */
+.signup-state {
+  max-width: 720px;
+  margin-top: 32px;
+  padding-left: 20px;
+  border-left: 2px solid var(--accent);
+  font-size: 17px;
+  line-height: 28px;
+  color: var(--text-primary);
+}
+
+.signup-state[hidden] {
+  display: none;
+}
+
+.signup-state-note {
+  display: block;
+  margin-top: 8px;
+  color: var(--text-secondary);
 }
 
 .field-pair {

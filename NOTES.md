@@ -5,8 +5,8 @@ build step, no backend. Serve the folder with any static server
 (`python3 -m http.server`) or open `index.html`.
 
 Files: `index.html` · `t-levels.html` · `about.html` · `apply.html` ·
-`events.html` · `resources.html` · `styles.css` · `app.js` · `data.js` ·
-`fonts/` · `NOTES.md`
+`events.html` · `resources.html` · `terms.html` · `privacy.html` ·
+`styles.css` · `app.js` · `data.js` · `fonts/` · `NOTES.md`
 
 ---
 
@@ -49,17 +49,24 @@ Files: `index.html` · `t-levels.html` · `about.html` · `apply.html` ·
    land "probably by autumn 2026." This is a public commitment — keep it true or
    update it as plans firm up.
 
-7. **There are no Terms of Service or Privacy Policy pages, and the footer does
-   not link to any.** A scaffolded pair was built and then **deliberately
-   removed** per founder decision: unreviewed legal text must not exist on the
-   site at all, not even as a marked placeholder. That is the honest trade —
-   no legal page beats a fake one — but it is a launch blocker, not a
-   resolved item. Both pages need writing and checking by someone qualified,
-   then the footer needs a Legal column back. Two questions need a real answer
-   rather than a careful guess: **age** (the audience is 16-20 and much of it is
-   under 18, so consent and whether a parent/guardian must be involved are open)
-   and the **lawful basis for collecting a WhatsApp number** via apply.html,
-   which is the most sensitive field the site asks for.
+7. **`terms.html` and `privacy.html` are scaffolding, not policies.**
+   Both pages are headings plus bracketed `[TODO: …]` notes describing what each
+   section must contain. Nothing is drafted. **Neither page can launch as-is.**
+   They exist because the footer now links to them and a footer with dead legal
+   links is worse than no links. Two sections need a qualified answer rather
+   than a careful guess: **Privacy §4 (age)** — the audience is 16-20 and much
+   of it is under 18, so consent and whether a parent/guardian must be involved
+   are open questions — and **Privacy §3**, the lawful basis for collecting a
+   **WhatsApp number**, which is the most sensitive field on the site. The
+   `.legal-todo` styling (mono, tertiary, bracketed) exists to make shipping
+   these by accident hard.
+
+8. **The homepage signup form sends nothing.** `index.html` §SIGNUP posts
+   nowhere; the submit state says so out loud (see DEVIATIONS 19). It also
+   duplicates `apply.html`, which asks for *different* fields (route → pathway).
+   Two live front doors collecting different data is a product decision nobody
+   has made yet — resolve before launch: either the homepage form is the front
+   door and apply.html goes, or the homepage form becomes a link to it.
 
 ---
 
@@ -231,21 +238,13 @@ stack but is not required or bundled.
     where nothing is moving and there is nothing to thin. The climb is
     atmosphere and never claims to be the list; t-levels.html is canonical.
 
-19. **The homepage signup form was built, then removed. `apply.html` is the
-    single canonical apply page.** The spec asked for an inline signup section;
-    it shipped, and was then cut per founder decision because it was a second
-    front door collecting *different* fields from apply.html (which asks route →
-    pathway). Every CTA on the homepage — hero, nav, "Ready?" — now points at
-    `apply.html`. The honesty problem the inline form raised is gone with it:
-    there is no longer a form that could imply an application was received when
-    nothing was sent. apply.html's own confirmation view remains a mockup (see
-    KNOWN LIMITATIONS).
-
-    Links stay **relative** (`apply.html`, not `/apply.html`). This deploys to
-    GitHub Pages as a *project* page at `3yther.github.io/nln-site/` with no
-    custom domain, so a root-absolute `/apply.html` resolves to
-    `3yther.github.io/apply.html` and 404s. Every link on the site is relative
-    for this reason.
+19. **The signup submit state says nothing was sent.** The spec supplied
+    "We review every application by hand — you'll hear back within 48 hours"
+    *and* the rule "do not fake a success that didn't happen". Those conflict:
+    the form has no backend, so printing that line as a receipt claims an
+    application was received. The line is kept as the **stated policy**, framed
+    as what happens once live, behind an explicit "Nothing was sent." Peer
+    honesty is the product; this is the one place the site could cheaply lie.
 
 20. **The founder's name and role are NOT placeholders.** The spec said to mark
     name/role/bio as placeholders. about.html already ships "Eliud Awuah /
@@ -257,10 +256,9 @@ stack but is not required or bundled.
 21. **`color-scheme: dark` added to `:root` — affects all pages.** The site is
     dark-only. Without this, UA-rendered chrome the CSS cannot reach (the
     `<select>` dropdown popup, scrollbars, control internals) keeps painting
-    from the light system palette. Surfaced by the homepage signup's `<select>`,
-    and kept after that form was removed because **apply.html's route/pathway
-    selects have the same problem** and always did. One line, strictly an
-    improvement, but it *does* change how the other five pages render native
+    from the light system palette. Surfaced by the new homepage `<select>` and
+    `<textarea>`; apply.html's selects get the fix for free. One line, strictly
+    an improvement, but it *does* change how the other five pages render native
     controls, so it is logged rather than slipped in.
 
 22. **The routes marquee was removed from the homepage.** It rendered the same
@@ -290,13 +288,12 @@ stack but is not required or bundled.
     climb is the largest text on the site and the list is still an unverified
     draft.
 
-25. **The only change to the other five pages is the footer contact
-    placeholder.** `Email us` (which pointed at `#`) → `[hello@ · TBC]`, so a
-    dead link reads as the placeholder it always was (REPLACE BEFORE LAUNCH 3).
-    A fourth "Legal" column was added here and then removed again along with the
-    legal pages, so `.footer-grid` is back to its original `1fr 2fr 1fr`. If the
-    legal pages are ever written, the grid needs a fourth track — three declared
-    tracks silently wrap a fourth child onto a second row.
+25. **The footer gained a fourth column on all six pages.** Terms + Privacy
+    links, plus a `[hello@ · TBC]` contact placeholder. `.footer-grid` went
+    `1fr 2fr 1fr` → `1.7fr 1fr 1fr 1fr`; the old three-track grid silently
+    wrapped the new column onto a second row. Editing the other five footers was
+    a deliberate, approved exception to "don't touch the other 5 pages" — legal
+    links on one page out of six is the same tell as having none.
 
 26. **`impeccable detect` baseline: main = 4, this branch = 4.** Same three
     `bounce-easing` hits (deviation 12 — the curve was explicitly specified) and
@@ -304,7 +301,8 @@ stack but is not required or bundled.
     numerals encode the ascend metaphor, in the one section this branch is told
     to leave alone). One new **false positive**: the marker sequence now reads
     "01, 02, 03, 04, **12**"; the 12 is scraped from the climb's `--dur:12.5s`
-    inline value, not a section label. No new anti-patterns.
+    inline value, not a section label. `terms.html` / `privacy.html` come back
+    clean. No new anti-patterns.
 
 ---
 

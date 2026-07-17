@@ -1391,6 +1391,15 @@ main > .meta-strip:first-child {
   color: var(--text-tertiary);
 }
 
+.footer-tagline {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-top: 8px;
+}
+
 /* ---------- Page header (interior pages) ---------- */
 
 .page-header {

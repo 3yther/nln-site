@@ -592,34 +592,5 @@
     };
   }
 
-  /* ---------- Signup (homepage) ----------
-     There is no backend. The form sends nothing, so the submit state says
-     nothing was sent. The 48-hour review line is kept as the stated policy,
-     framed as what happens once this is live — printing it as a receipt would
-     be a fake success, and "peer honesty" is the entire product.
-     Native validation runs first (required + type=email), so the honest state
-     only ever appears for input that would really have been submittable. */
-  var signupForm = document.querySelector("[data-signup]");
-  var signupState = document.querySelector("[data-signup-state]");
-  if (signupForm && signupState) {
-    signupForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      if (!signupForm.checkValidity()) {
-        signupForm.reportValidity();
-        var firstInvalid = signupForm.querySelector(":invalid");
-        if (firstInvalid) firstInvalid.focus();
-        return;
-      }
-      // Curly apostrophes to match the rest of the site's copy, and a span
-      // rather than <em>: the second line is a quieter aside, not emphasis.
-      signupState.innerHTML =
-        "<strong>Nothing was sent.</strong> This page is a design mockup and the " +
-        "form isn&rsquo;t wired up yet, so your details didn&rsquo;t go anywhere." +
-        "<span class=\"signup-state-note\">When it&rsquo;s live: we review every " +
-        "application by hand, and you&rsquo;ll hear back within 48 hours.</span>";
-      signupState.hidden = false;
-    });
-  }
-
   /* ---------- Footer year (kept as static © 2026 per copy spec) ---------- */
 })();
